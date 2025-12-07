@@ -36,13 +36,14 @@ set(GLOBAL_DEFINES
 set(GLOBAL_INCLUDES
     "../bfx/dfifo"
     "../bfx/siso_fifo"
+    "../bfx/cli"
 )
 
 # 代码源文件 ============================================================
 
 # code to test
 set(CODE_SOURCES
-
+    "../bfx/cli/bfx_cli_raw.c"
 )
 
 # code of testcases
@@ -50,6 +51,7 @@ set(TEST_SOURCES
     "testcase/dfifo.cpp"
     "testcase/siso_fifo_nosplit.cpp"
     "testcase/siso_fifo_split.cpp"
+    "testcase/cli_raw.cpp"
 )
 
 # 可执行文件 ============================================================
