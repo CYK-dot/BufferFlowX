@@ -1,11 +1,11 @@
 /**
  * @file bfx_dfifo.h
  * @author CYK-Dot
- * @brief Brief description
+ * @brief double fifo
  * @version 0.1
  * @date 2025-12-07
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025 CYK-Dot, MIT License
  */
 #ifndef __BFX_DFIFO_RAW_H__
 #define __BFX_DFIFO_RAW_H__
