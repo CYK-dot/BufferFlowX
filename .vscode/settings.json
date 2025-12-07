@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "any": "cpp",
+        "atomic": "cpp",
+        "*.tcc": "cpp",
+        "charconv": "cpp",
+        "compare": "cpp",
+        "optional": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "numeric": "cpp",
+        "ranges": "cpp",
+        "cmath": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "variant": "cpp",
+        "vector": "cpp",
+        "bit": "cpp",
+        "sstream": "cpp",
+        "functional": "cpp",
+        "numbers": "cpp"
+    }
+}
