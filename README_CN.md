@@ -1,5 +1,23 @@
 # BufferFlowX
-收录了自己常用的MCU数据结构，以队列为主。
+收录了自己常用的MCU数据结构，以队列为主，大多为纯头文件设计。
+
+# 项目结构
+```
+BufferFlowX/
+├── bfx/                BufferFlowX源文件
+│   ├── siso_fifo/      单生产者-单消费者 环形队列
+│   ├── dfifo/          双缓冲区
+├── test/               BufferFlowX测试工程
+│   ├── build/          测试用例编译输出目录
+│   ├── lib/            gtest静态库，编译环境Windows/MinGW64/GCC15.2.0，gtest版本1.14.0
+│   ├── testcase/       测试用例源文件
+│   ├── CMakeLists.txt  测试用例CMakeLists文件
+├── README_CN.md
+├── README.md
+```
+
+# SISO_FIFO
+一个简单的单生产者-单消费者环形队列。采用异步设计，并且允许申请时不指定申请长度，而在提交时确定。
 
 # DFIFO
 双缓冲区，又称AB缓冲区，其通过两个缓冲区交替使用消除互斥，让读写可以同时进行。</br>
