@@ -65,6 +65,12 @@
         "string_view": "c",
         "system_error": "c",
         "thread": "c",
-        "unordered_map": "c"
+        "unordered_map": "c",
+        "text_encoding": "c",
+        "concepts": "c",
+        "stdexcept": "c",
+        "string.h": "c",
+        "semaphore": "cpp",
+        "initializer_list": "cpp"
     }
 }

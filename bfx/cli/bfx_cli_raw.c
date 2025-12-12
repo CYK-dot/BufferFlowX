@@ -1,7 +1,7 @@
 /**
  * @file bfx_cli.c
  * @author CYK-Dot
- * @brief Brief description
+ * @brief basic cli matcher
  * @version 0.1
  * @date 2025-12-07
  *
@@ -10,23 +10,18 @@
 
 /* Header import ------------------------------------------------------------------*/
 #include "bfx_cli_raw.h"
-#include <string.h>
 
 /* Private typedef ----------------------------------------------------------------*/
 
 /* Private defines ----------------------------------------------------------------*/
 
-#define BFX_CLI_STAT_KEY   0
-#define BFX_CLI_STAT_PARAM 1
-
 #define BFX_CLI_TOKEN_MATCH 0
-#define BFX_CLI_TOKEN_CMD_REACH_END 1
-#define BFX_CLI_TOKEN_CMD_NOT_MATCH 2
-#define BFX_CLI_TOKEN_FMT_REACH_END 3
-#define BFX_CLI_TOKEN_MATCH_TO_END 4
+#define BFX_CLI_TOKEN_CMD_NOT_MATCH 1
 
-#define BFX_CLI_IS_TOKEN_END(ch) \
-    ((ch) == '\0' || (ch) == ' ' || (ch) == '$' || (ch) == '\n')
+#define BFX_CLI_CMD_TOKEN_END(ucToken) ((ucToken) == '\n' || (ucToken) == ' ')
+#define BFX_CLI_FMT_TOKEN_END(ucToken) ((ucToken) == '\0' || (ucToken) == ' ')
+#define BFX_CLI_TOKEN_END(ucToken) ((ucToken) == '\0' || (ucToken) == ' ' || (ucToken) == '\n')
+#define BFX_CLI_IS_FMT_TOKEN_PARAM(pucToken) ((pucToken)[0] == '$')
 
 /* Global variables ---------------------------------------------------------------*/
 
@@ -36,122 +31,124 @@
 
 /* Private function definitions --------------------------------------------------*/
 
-/* Exported function definitions -------------------------------------------------*/
-
 /**
- * @brief match command token with format token
- * 
- * @param cmdToken command token
- * @param fmtToken format token
- * @return uint16_t token length
+ * @brief simplified strlen function
  */
-static inline uint8_t BFX_CliMatchKeyToken(const char *cmdToken, const char *fmtToken,
-    uint16_t *tokenLen)
+static inline uint16_t prvBFX_Strlen(const char *str)
 {
     uint16_t i = 0;
-    while (!BFX_CLI_IS_TOKEN_END(fmtToken[i])) {
-        if (BFX_CLI_IS_TOKEN_END(cmdToken[i])) {
-            return BFX_CLI_TOKEN_CMD_REACH_END;
+    while (str[i] != '\0') {
+        i++;
+    }
+    return i;
+}
+
+/**
+ * @brief get token length
+ */
+static inline uint16_t prvBFX_CliGetTokenLen(const char *token)
+{
+    uint16_t i = 0;
+    while (!BFX_CLI_TOKEN_END(token[i])) {
+        i++;
+    }
+    return i;
+}
+
+/**
+ * @brief get token count
+ */
+static inline uint16_t prvBFX_CliGetToken(const char *str, uint16_t *paramStore, uint16_t storeCnt)
+{
+    uint16_t tokenCount = 0;
+    uint16_t i = 0;
+    while ( i < prvBFX_Strlen(str)) {
+        if (str[i] == ' ') {
+            i++;
+            continue;
+        } else if (str[i] == '\n' || str[i] == '\0') {
+            break;
+        } else if (tokenCount == storeCnt) {
+            return UINT16_MAX;
         }
-        if (cmdToken[i] != fmtToken[i]) {
+        paramStore[tokenCount++] = i;
+        i += prvBFX_CliGetTokenLen(&(str[i]));
+    }
+    return tokenCount;
+}
+
+/**
+ * @brief match token with format
+ */
+static inline uint8_t prvBFX_CliTokenMatch(const char *tokenFmt, const char *tokenCmd)
+{
+    uint16_t i = 0;
+    while (!BFX_CLI_FMT_TOKEN_END(tokenFmt[i])) {
+        if (tokenFmt[i] != tokenCmd[i]) {
             return BFX_CLI_TOKEN_CMD_NOT_MATCH;
         }
         i++;
     }
-    if (BFX_CLI_IS_TOKEN_END(cmdToken[i])) {
-        *tokenLen = i;
+    if (BFX_CLI_CMD_TOKEN_END(tokenCmd[i])) {
         return BFX_CLI_TOKEN_MATCH;
     }
-    return BFX_CLI_TOKEN_FMT_REACH_END;
+    return BFX_CLI_TOKEN_CMD_NOT_MATCH;
 }
 
-static inline uint8_t BFX_CliMatchKeyParam(const char *cmd, const char *fmt,
-    uint16_t *cmdTokenIndex, uint16_t *fmtTokenIndex)
-{
-    /* forward to next token */
-    while (!BFX_CLI_IS_TOKEN_END(cmd[*cmdTokenIndex])) {
-        (*cmdTokenIndex)++;
-    }
-    while (!BFX_CLI_IS_TOKEN_END(fmt[*fmtTokenIndex])) {
-        (*fmtTokenIndex)++;
-    }
-    /* judge event */
-    if (cmd[*cmdTokenIndex] == '\0' && fmt[*fmtTokenIndex] != '\n') {
-        return BFX_CLI_TOKEN_FMT_REACH_END;
-    } else if (cmd[*cmdTokenIndex] != '\0' && fmt[*fmtTokenIndex] == '\n') {
-        return BFX_CLI_TOKEN_CMD_REACH_END;
-    } else if (cmd[*cmdTokenIndex] == '\n' && fmt[*fmtTokenIndex] == '\0') {
-        return BFX_CLI_TOKEN_MATCH_TO_END;
-    } else {
-        (*cmdTokenIndex)++;
-        (*fmtTokenIndex)++;
-        return BFX_CLI_TOKEN_MATCH;
-    }
-}
+/* Exported function definitions -------------------------------------------------*/
 
 /**
- * @brief match command with expression
+ * @brief match command with format
  * 
  * @param cmd command string
- * @param expr expression string
- * @param paramIndex parameter index array
- * @param paramMaxCnt maximum parameter count
- * @return uint16_t parameter count
+ * @param fmt format string
+ * @param paramStore store parameter index
+ * @param storeCnt size of parameter store
+ * @return parameter count when match, UINT16_MAX when not match
  * 
- * @note 
- * valid format should be:
- *  1. use '$' to mark parameter position
- *  2. '$' can be left close to keys, but should not be right close to keys
- *  3. parameter should not close to each other
- *  4. no more than 2 spaces
- *  5. '$' have no escape character, so should not use '$' to make keys
- * valid examples
- *  1. set led$index on
- *  2. display adc$peri -$channel on
- * invalid examples
- *  1. set  led on
- *  2. set$indexA$indexB on
+ * @warning
+ *      1. store count should be no less than token count in format string.
+ *      2. command string should be writable.
+ *      3. command string should ends with \n or \n\r, \r\n is not supported.
  */
-uint16_t BFX_CliMatch(const char *cmd, const char *fmt, uint16_t *paramIndex, uint16_t paramMaxCnt)
+uint16_t BFX_CliRawMatch(char *cmd, const char *fmt, uint16_t *paramStore, uint16_t storeCnt)
 {
-    uint8_t fmtStat = BFX_CLI_STAT_KEY;
-    uint16_t fmtTokenIndex = 0;
-    uint16_t cmdTokenIndex = 0;
-    uint16_t tokenLen = 0;
-    uint16_t tokenCnt = 0;
-    uint8_t tokenEvent;
+    /* get token count */
+    uint16_t fmtTokenCnt = prvBFX_CliGetToken(fmt, paramStore, storeCnt);
+    if (fmtTokenCnt == UINT16_MAX) {
+        return UINT16_MAX;
+    }
+    uint16_t cmdTokenCnt = prvBFX_CliGetToken(cmd, paramStore, storeCnt);
+    if (cmdTokenCnt == UINT16_MAX) {
+        return UINT16_MAX;
+    }
+    if (cmdTokenCnt != fmtTokenCnt) {
+        return UINT16_MAX;
+    }
 
-    while(cmdTokenIndex < strlen(cmd)) {
-        if (fmtStat == BFX_CLI_STAT_KEY) {
-            /* token status change */
-            if (fmt[fmtTokenIndex] == '$') {
-                fmtTokenIndex++;
-                fmtStat = BFX_CLI_STAT_PARAM;
+    /* compare token and record parameters */
+    char *tokenFmt = (char *)fmt;
+    uint16_t paramCnt = 0;
+    for (uint16_t i = 0; i < cmdTokenCnt; i++) {
+        /* match parameters */
+        if (BFX_CLI_IS_FMT_TOKEN_PARAM(tokenFmt)) {
+            paramStore[paramCnt++] = paramStore[i];
+            uint16_t paramSpaceIndex = prvBFX_CliGetTokenLen(&cmd[paramStore[i]]);
+            cmd[paramSpaceIndex] = '\0';
+            goto BFX_CLI_TOKEN_EVENT_JUDGE;
+        }
+        /* match keys */
+        uint8_t matchStat = prvBFX_CliTokenMatch(tokenFmt, &cmd[paramStore[i]]);
+        if (matchStat != BFX_CLI_TOKEN_MATCH) {
+            return UINT16_MAX;
+        }
+        /* judge if reach end */
+        BFX_CLI_TOKEN_EVENT_JUDGE:
+            tokenFmt += prvBFX_CliGetTokenLen(tokenFmt);
+            if (tokenFmt[0] != '\0') {
+                tokenFmt++;
                 continue;
             }
-            /* token matcher */
-            tokenEvent = BFX_CliMatchKeyToken(&cmd[cmdTokenIndex], &fmt[fmtTokenIndex], &tokenLen);
-            if (tokenEvent != BFX_CLI_TOKEN_MATCH) {
-                return UINT16_MAX;
-            } else {
-                cmdTokenIndex += tokenLen + 1;
-                fmtTokenIndex += tokenLen + 1;
-            }
-        } else {
-            /* token matcher */
-            paramIndex[tokenCnt++] = cmdTokenIndex;
-            if (tokenCnt > paramMaxCnt) {
-                return UINT16_MAX;
-            }
-            tokenEvent = BFX_CliMatchKeyParam(cmd, fmt, &cmdTokenIndex, &fmtTokenIndex);
-            if (tokenEvent == BFX_CLI_TOKEN_MATCH_TO_END) {
-                break;
-            } else if (tokenEvent != BFX_CLI_TOKEN_MATCH) {
-                return UINT16_MAX;
-            }
-            /* token status change */
-            fmtStat = BFX_CLI_STAT_KEY;
-        }
     }
-    return tokenCnt;
+    return paramCnt;
 }
