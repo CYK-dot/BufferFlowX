@@ -27,6 +27,10 @@ set(GTEST_HEADER ${CMAKE_SOURCE_DIR}/lib/headers)
 
 # 代码配置 ==============================================================
 
+# cmake function headers
+include(../bfx/bfx_cmake_util.cmake)
+include(./lib/gtest_cov.cmake)
+
 # global defines
 set(GLOBAL_DEFINES
 
@@ -34,17 +38,16 @@ set(GLOBAL_DEFINES
 
 # global includes
 set(GLOBAL_INCLUDES
-    "../bfx/dfifo"
-    "../bfx/siso_fifo"
-    "../bfx/cli"
 )
+bfx_get_include_dirs(GLOBAL_INCLUDES)
+message("inc_dir=${GLOBAL_INCLUDES}")
 
 # 代码源文件 ============================================================
 
 # code to test
 set(CODE_SOURCES
-    "../bfx/cli/bfx_cli_raw.c"
 )
+bfx_get_all_srcs(CODE_SOURCES)
 
 # code of testcases
 set(TEST_SOURCES
@@ -52,9 +55,11 @@ set(TEST_SOURCES
     "testcase/siso_fifo_nosplit.cpp"
     "testcase/siso_fifo_split.cpp"
     "testcase/cli_raw.cpp"
+    "testcase/fsm.cpp"
 )
 
 # 可执行文件 ============================================================
+enable_code_coverage()
 
 add_executable(${PROJECT_NAME} 
     ${CODE_SOURCES}
@@ -74,3 +79,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     "${GMOCK_ROOT}/libgtest_main.a"
     pthread
 )
+bfx_add_puml_fsm(${PROJECT_NAME}
+    "${CMAKE_CURRENT_SOURCE_DIR}/testcase/FsmTest.puml"
+    "${CMAKE_CURRENT_SOURCE_DIR}/testcase/generated/"
+)
+add_coverage_target(${PROJECT_NAME})

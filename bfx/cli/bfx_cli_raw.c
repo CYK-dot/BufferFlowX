@@ -134,7 +134,7 @@ uint16_t BFX_CliRawMatch(char *cmd, const char *fmt, uint16_t *paramStore, uint1
         if (BFX_CLI_IS_FMT_TOKEN_PARAM(tokenFmt)) {
             paramStore[paramCnt++] = paramStore[i];
             uint16_t paramSpaceIndex = prvBFX_CliGetTokenLen(&cmd[paramStore[i]]);
-            cmd[paramSpaceIndex] = '\0';
+            cmd[paramStore[i] + paramSpaceIndex] = '\0';
             goto BFX_CLI_TOKEN_EVENT_JUDGE;
         }
         /* match keys */

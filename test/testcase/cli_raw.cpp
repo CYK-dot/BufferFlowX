@@ -97,7 +97,7 @@ TEST(CliRawDT, MatchKeyParamDescMulti) {
     EXPECT_EQ(paramIndex[0], 0);
     EXPECT_EQ(paramIndex[1], 3);
     EXPECT_EQ(toMatch[paramIndex[0] + 2], '\0');
-    EXPECT_EQ(toMatch[paramIndex[1] + 4], '\0');
+    EXPECT_EQ(toMatch[paramIndex[1] + 5], '\0');
 }
 
 TEST(CliRawDT, MaxParamsExact) {
@@ -116,7 +116,6 @@ TEST(CliRawDT, MaxParamsExact) {
     EXPECT_EQ(toMatch[paramIndex[2] + 1], '\0');
     EXPECT_EQ(toMatch[paramIndex[3] + 1], '\0');
     EXPECT_EQ(toMatch[paramIndex[4] + 1], '\0');
-    EXPECT_EQ(toMatch[paramIndex[5] + 1], '\0');
 }
 
 TEST(CliRawDT, OverFlowAvoid) {

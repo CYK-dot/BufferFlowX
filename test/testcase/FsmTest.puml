@@ -1,0 +1,23 @@
+@startuml FsmTest
+
+    Setup: 系统初始化
+    BootLoader: 加载用户程序
+    RunMain: 运行主程序
+    CoreDump: 打印错误信息并停止程序
+
+    [*] --> Setup
+    Setup --> BootLoader : SelfCheckDone/自检完成
+    BootLoader --> RunMain : FileLoaded/文件加载完成
+    BootLoader --> CoreDump : ErrOccur/校验错误
+    BootLoader --> CoreDump : ErrOccur/加载错误
+    RunMain --> CoreDump : ErrOccur/主程序运行错误
+    CoreDump --> [*] : DumpFin
+
+    state RunMain {
+        LedOn: 点亮LED
+        LedOff: 熄灭LED
+        [*] --> LedOn
+        LedOn --> LedOff : Tmr200Ms/200ms定时器超时
+        LedOff --> LedOn : Tmr200Ms/200ms定时器超时
+    }
+@enduml

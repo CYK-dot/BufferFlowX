@@ -45,3 +45,6 @@ build/
 
 # vscode tmp files
 .BROWSE.*
+
+# bfx generated files
+generated/
