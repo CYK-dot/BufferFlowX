@@ -18,7 +18,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y cmake build-essential git python3 python3-pip
-        pip3 install gcovr jinja2
+        pip3 install gcovr
         
     - name: Setup test framework
       working-directory: ./test/script
@@ -39,7 +39,7 @@ jobs:
         ./testcase_run.sh
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
         file: test/build/coverage/coverage.xml  # 或 coverage.info
         flags: unittests
