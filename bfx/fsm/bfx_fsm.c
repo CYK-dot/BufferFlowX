@@ -59,6 +59,9 @@ static inline void BFX_FsmGetTransitionInfo(BFX_FSM_HANDLE *handle, uint8_t stat
 static inline uint8_t BFX_FsmProcessTransition(BFX_FSM_HANDLE *handle, BFX_FSM_TRAN_RECORD const *tranTbl, 
                                               uint8_t tranTblCnt, uint8_t event, void *arg, uint16_t argSize)
 {
+    if (tranTbl == NULL || tranTblCnt == 0) {
+        return 1;
+    }
     for (uint8_t i = 0; i < tranTblCnt; i++) {
         if (tranTbl[i].event == event) {
             handle->currentStateId = BFX_FsmGetNextState(handle->stateTbl, tranTbl[i].nextState);

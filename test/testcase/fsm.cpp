@@ -90,3 +90,16 @@ TEST(fsm, FetchEventData) {
         (void *)"ThisIsRuntimeEventData", sizeof("ThisIsRuntimeEventData"));
     BFX_FsmResetTo(&g_FsmTest_fsmHandle, FSMTEST_SETUP);
 }
+
+TEST(fsm, TurnToGrandFatherTransfer) {
+    (void)BFX_FsmProcessEvent(&g_FsmTest_fsmHandle, FSMTEST_SELFCHECKDONE, NULL, 0);
+    (void)BFX_FsmProcessEvent(&g_FsmTest_fsmHandle, FSMTEST_FILELOADED, NULL, 0);
+    (void)BFX_FsmProcessEvent(&g_FsmTest_fsmHandle, FSMTEST_TMR200MS, NULL, 0);
+    (void)BFX_FsmProcessEvent(&g_FsmTest_fsmHandle, FSMTEST_BOTTONPRESSED, NULL, 0);
+    (void)BFX_FsmProcessEvent(&g_FsmTest_fsmHandle, FSMTEST_IICINITDONE, NULL, 0);
+    (void)BFX_FsmProcessEvent(&g_FsmTest_fsmHandle, FSMTEST_ERROCCUR, NULL, 0);
+    uint8_t state = BFX_FsmGetCurrentStateID(&g_FsmTest_fsmHandle);
+    EXPECT_EQ(state, FSMTEST_COREDUMP);
+
+    BFX_FsmResetTo(&g_FsmTest_fsmHandle, FSMTEST_SETUP);
+}

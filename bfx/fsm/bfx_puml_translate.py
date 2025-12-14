@@ -288,6 +288,9 @@ class PlantUMLParser:
         """获取所有状态的信息"""
         state_info = []
         
+        # 获取状态转移信息
+        state_transitions = self.get_state_transitions()
+        
         for state in self.states.values():
             # 确定默认状态ID
             if state.initial_substate:
@@ -310,12 +313,17 @@ class PlantUMLParser:
             # 获取转移表名
             trans_tbl_name = f"g_{self.project_name}_{state.get_full_name().lower()}_TransTbl"
             
+            # 检查该状态是否有转移表
+            state_full_name = state.get_full_name()
+            empty_trans_tbl = state_full_name not in state_transitions or len(state_transitions[state_full_name]) == 0
+            
             state_info.append({
                 'state_id': state.get_macro_name(self.project_name),
                 'default_id': default_id,
                 'father_id': father_id,
                 'trans_tbl_name': trans_tbl_name,
-                'callback_name': state.get_callback_name(self.project_name)
+                'callback_name': state.get_callback_name(self.project_name),
+                'empty_trans_tbl': empty_trans_tbl
             })
         
         return state_info
@@ -421,7 +429,11 @@ SOURCE_TEMPLATE = """/**
  * @brief FSM of {{ project_name }}
  * @generator BufferFlowX
 **/
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* headers import ---------------------------------------------------------------------------------------------*/
+#include <stddef.h>
 #include "{{ project_name }}.h"
 
 /* state callback ---------------------------------------------------------------------------------------------*/
@@ -438,11 +450,8 @@ __attribute__((weak)) void {{ state.callback_name }}(BFX_FSM_ACTION_CTX *ctx, vo
 {% endfor %}
 const BFX_FSM_STATE g_{{ project_name }}_allstatus[] = {
     {% for state in state_info %}{
-        {{ state.state_id }},
-        {{ state.default_id }},
-        {{ state.father_id }},
-        sizeof({{ state.trans_tbl_name }}) / sizeof(BFX_FSM_TRAN_RECORD),
-        {{ state.trans_tbl_name }},
+        {{ state.state_id }}, {{ state.default_id }}, {{ state.father_id }},
+        {% if not state.empty_trans_tbl %}sizeof({{ state.trans_tbl_name }}) / sizeof(BFX_FSM_TRAN_RECORD), {{ state.trans_tbl_name }},{% else %}0, (BFX_FSM_TRAN_RECORD const *)NULL,{% endif %}
         {{ state.callback_name }}
     }{% if not loop.last %},{% endif %}
     {% endfor %}
@@ -453,12 +462,15 @@ BFX_FSM_HANDLE g_{{ project_name }}_fsmHandle = {
     .stateCnt = sizeof(g_{{ project_name }}_allstatus) / sizeof(BFX_FSM_STATE),
     .currentStateId = {{ initial_state_macro }},
 };
+#ifdef __cplusplus
+}
+#endif
 """
 
 def main():
     """主函数"""
     if len(sys.argv) < 2 or len(sys.argv) > 3:
-        print("用法: python plantuml_to_c.py <plantuml_file> [output_dir]")
+        print("usage: python plantuml_to_c.py <plantuml_file> [output_dir]")
         sys.exit(1)
     
     # 获取输入文件路径
@@ -492,7 +504,7 @@ def main():
     with open(source_path, 'w', encoding='utf-8') as f:
         f.write(source_content)
     
-    print(f"生成完成: {header_path} 和 {source_path}")
+    print(f"-- FSM generated OK: {header_path} and {source_path}")
 
 if __name__ == "__main__":
     main()

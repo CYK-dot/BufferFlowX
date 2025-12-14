@@ -16,8 +16,18 @@
     state RunMain {
         LedOn: 点亮LED
         LedOff: 熄灭LED
+        DisplayOLED: 显示OLED
         [*] --> LedOn
         LedOn --> LedOff : Tmr200Ms/200ms定时器超时
         LedOff --> LedOn : Tmr200Ms/200ms定时器超时
+        LedOn --> DisplayOLED : BottonPressed/按钮按下
+        LedOff --> DisplayOLED : BottonPressed/按钮按下
+
+        state DisplayOLED {
+            [*] --> SetupIIC
+            SetupIIC --> InitOLED : IICInitDone/IIC初始化完成
+            InitOLED --> ShowText : OLEDInitDone/OLED初始化完成
+            ShowText --> ShowText : TextUpdated
+        }
     }
 @enduml
