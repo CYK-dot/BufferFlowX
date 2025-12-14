@@ -1,6 +1,7 @@
 # BufferFlowX
 A collection of commonly used MCU data structures, primarily focusing on queues.
-[中文文档](README_CN.md)
+[中文文档](README_CN.md)</br>
+![codecov](https://codecov.io/gh/CYK-dot/BufferFlowX/branch/main/graph/badge.svg)
 
 # DFIFO
 Double Buffer, also known as AB Buffer, eliminates mutual exclusion by alternating the use of two buffers, enabling simultaneous read and write operations.</br>

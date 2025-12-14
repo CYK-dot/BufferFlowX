@@ -8,6 +8,7 @@ cd ..
 
 # Create build directory if it doesn't exist
 if [ ! -d "build" ]; then
+    echo "Creating build directory..."
     mkdir -p build
 fi
 
@@ -15,13 +16,15 @@ fi
 cd build
 
 # Run cmake and make commands
-cmake .. -DNABLE_CODE_COVERAGE=ON
+echo "Configuring with CMake..."
+cmake .. -DENABLE_CODE_COVERAGE=ON
 if [ $? -ne 0 ]; then
     echo "CMake failed with exit code $?"
     cd "$SCRIPT_DIR"
     exit $?
 fi
 
+echo "Cleaning previous builds..."
 make clean
 if [ $? -ne 0 ]; then
     echo "Make clean failed with exit code $?"
@@ -29,6 +32,7 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 
+echo "Building test cases..."
 make all
 if [ $? -ne 0 ]; then
     echo "Make all failed with exit code $?"

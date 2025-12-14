@@ -13,7 +13,7 @@ if (!(Test-Path "build")) {
 Set-Location "build"
 
 # Run cmake and make commands
-cmake .. -DNABLE_CODE_COVERAGE=ON
+cmake .. -DENABLE_CODE_COVERAGE=ON
 if ($LASTEXITCODE -ne 0) {
     Write-Host "CMake failed with exit code $LASTEXITCODE" -ForegroundColor Red
     Set-Location $scriptDir

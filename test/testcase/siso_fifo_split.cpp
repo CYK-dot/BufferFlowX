@@ -10,7 +10,7 @@
 
 /* Header import ------------------------------------------------------------------*/
 #include <gtest/gtest.h>
-#include "BFX_QFIFO.h"
+#include "bfx_qfifo.h"
 
 /* Config macros ------------------------------------------------------------------*/
 
