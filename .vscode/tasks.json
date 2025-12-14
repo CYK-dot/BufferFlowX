@@ -1,0 +1,128 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Setup Test Framework",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/test/script/framework_setup.ps1"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Setup the testing framework by cloning googletest and building it (Windows)"
+        },
+        {
+            "label": "Setup Test Framework (Linux)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/test/script/vscode_cfg/framework_setup.sh"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Setup the testing framework by cloning googletest and building it (Linux)"
+        },
+        {
+            "label": "Build Test Cases",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/test/script/testcase_build.ps1"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Build test cases with code coverage enabled (Windows)",
+            "options": {
+                "cwd": "${workspaceFolder}/test/script"
+            }
+        },
+        {
+            "label": "Build Test Cases (Linux)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/test/script/vscode_cfg/testcase_build.sh"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Build test cases with code coverage enabled (Linux)",
+            "options": {
+                "cwd": "${workspaceFolder}/test/script/vscode_cfg"
+            }
+        },
+        {
+            "label": "Run Test Cases",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/test/script/testcase_run.ps1"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Run test cases and generate coverage report (Windows)",
+            "options": {
+                "cwd": "${workspaceFolder}/test/script"
+            }
+        },
+        {
+            "label": "Run Test Cases (Linux)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/test/script/vscode_cfg/testcase_run.sh"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Run test cases and generate coverage report (Linux)",
+            "options": {
+                "cwd": "${workspaceFolder}/test/script/vscode_cfg"
+            }
+        }
+    ]
+}

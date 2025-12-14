@@ -1,5 +1,6 @@
 # BufferFlowX
 收录了常用的数据结构和DFX工具代码，为资源受限（RAM < 10KB）的MCU提供软件基础设施。
+![codecov](https://codecov.io/gh/CYK-dot/BufferFlowX/branch/main/graph/badge.svg)
 
 # 项目结构
 ```
