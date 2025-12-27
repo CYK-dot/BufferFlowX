@@ -78,7 +78,7 @@ typedef struct tagBFX_QFIFO_PIECE {
  * @param pBuf   [IN]  [char *]    Pointer to the buffer.
  * @param uiSize [IN]  [uint16_t]  Size of the buffer.
  */
-static inline void BFX_QFIFO_INIT(BFX_QFIFO *pFifo, char *pBuf, uint16_t uiSize) {
+static inline void BFX_QfifoInit(BFX_QFIFO *pFifo, char *pBuf, uint16_t uiSize) {
     pFifo->buf = pBuf;
     pFifo->size = uiSize;
     pFifo->headReady = 0;
@@ -93,7 +93,7 @@ static inline void BFX_QFIFO_INIT(BFX_QFIFO *pFifo, char *pBuf, uint16_t uiSize)
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @return [uint16_t] Free size of the FIFO.
  */
-static inline uint16_t BFX_QFIFO_FREE_SIZE(BFX_QFIFO *pFifo) {
+static inline uint16_t BFX_QfifoFreeSize(BFX_QFIFO *pFifo) {
     return (pFifo->tailReady > pFifo->headPend) ?
            (pFifo->tailReady - pFifo->headPend - 1) :
            (pFifo->size - (pFifo->headPend - pFifo->tailReady) - 1);
@@ -105,7 +105,7 @@ static inline uint16_t BFX_QFIFO_FREE_SIZE(BFX_QFIFO *pFifo) {
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @return [uint16_t] Free size of the FIFO without split.
  */
-static inline uint16_t BFX_QFIFO_FREE_NOSPLIT_SIZE(BFX_QFIFO *pFifo) {
+static inline uint16_t BFX_QfifoFreeNoSplitSize(BFX_QFIFO *pFifo) {
     return (pFifo->tailReady > pFifo->headPend) ?
            (pFifo->tailReady - pFifo->headPend - 1) :
            (pFifo->size - pFifo->headPend - ((pFifo->tailReady == 0) ? 1 : 0));
@@ -117,7 +117,7 @@ static inline uint16_t BFX_QFIFO_FREE_NOSPLIT_SIZE(BFX_QFIFO *pFifo) {
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @return [uint16_t] Free size of the FIFO with uncertain length.
  */
-static inline uint16_t BFX_QFIFO_FREE_VARI_SIZE(BFX_QFIFO *pFifo) {
+static inline uint16_t BFX_QfifoFreeVariSize(BFX_QFIFO *pFifo) {
     return (pFifo->tailReady > pFifo->headReady) ?
            (pFifo->tailReady - pFifo->headReady - 1) :
            (pFifo->size - (pFifo->headReady - pFifo->tailReady) - 1);
@@ -129,7 +129,7 @@ static inline uint16_t BFX_QFIFO_FREE_VARI_SIZE(BFX_QFIFO *pFifo) {
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @return [uint16_t] Received size of the FIFO.
  */
-static inline uint16_t BFX_QFIFO_RECV_SIZE(BFX_QFIFO *pFifo) {
+static inline uint16_t BFX_QfifoRecvSize(BFX_QFIFO *pFifo) {
     return (pFifo->headReady >= pFifo->tailPend) ?
            (pFifo->headReady - pFifo->tailPend) :
            (pFifo->size - (pFifo->tailPend - pFifo->headReady));
@@ -141,7 +141,7 @@ static inline uint16_t BFX_QFIFO_RECV_SIZE(BFX_QFIFO *pFifo) {
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @return [uint16_t] Received size of the FIFO without split.
  */
-static inline uint16_t BFX_QFIFO_RECV_NOSPLIT_SIZE(BFX_QFIFO *pFifo) {
+static inline uint16_t BFX_QfifoRecvNoSplitSize(BFX_QFIFO *pFifo) {
     return (pFifo->headReady >= pFifo->tailPend) ?
            (pFifo->headReady - pFifo->tailPend) :
            (pFifo->size - pFifo->tailPend);
@@ -153,7 +153,7 @@ static inline uint16_t BFX_QFIFO_RECV_NOSPLIT_SIZE(BFX_QFIFO *pFifo) {
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @return [uint16_t] Received size of the FIFO with uncertain length.
  */
-static inline uint16_t BFX_QFIFO_RECV_VARI_SIZE(BFX_QFIFO *pFifo) {
+static inline uint16_t BFX_QfifoRecvVariSize(BFX_QFIFO *pFifo) {
     return (pFifo->headReady >= pFifo->tailReady) ?
            (pFifo->headReady - pFifo->tailReady) :
            (pFifo->size - (pFifo->tailReady - pFifo->headReady));
@@ -167,15 +167,15 @@ static inline uint16_t BFX_QFIFO_RECV_VARI_SIZE(BFX_QFIFO *pFifo) {
  * @param pData          [OUT] [char *]    Pointer to the buffer.
  * @param uiAcquiredSize [OUT] [uint16_t]  Pointer to the acquired size, can be smaller than uiSize.
  */
-static inline void BFX_QFIFO_SEND_ACQUIRE_NOSPLIT(BFX_QFIFO *pFifo, uint16_t uiSize, char **pData, uint16_t *uiAcquiredSize) {
+static inline void BFX_QfifoSendAcquireNoSplit(BFX_QFIFO *pFifo, uint16_t uiSize, char **pData, uint16_t *uiAcquiredSize) {
     if (BFX_QFIFO_UNLIKELY(((pFifo)->headReady != (pFifo)->headPend) ||
-        (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo)) == 0)) {
+        (BFX_QfifoFreeNoSplitSize(pFifo)) == 0)) {
             *pData = NULL;
             *uiAcquiredSize = 0;
             return;
     }
-    *uiAcquiredSize = (uiSize) < (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo)) ?
-                        (uiSize) : (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo));
+    *uiAcquiredSize = (uiSize) < (BFX_QfifoFreeNoSplitSize(pFifo)) ?
+                        (uiSize) : (BFX_QfifoFreeNoSplitSize(pFifo));
     *pData = &((pFifo)->buf[(pFifo)->headReady]);
     (pFifo)->headPend = ((pFifo)->headReady + (*uiAcquiredSize)) % (pFifo)->size;
 }
@@ -188,24 +188,24 @@ static inline void BFX_QFIFO_SEND_ACQUIRE_NOSPLIT(BFX_QFIFO *pFifo, uint16_t uiS
  * @param ppData         [OUT] [char *[2]]   Pointer to the buffer array.
  * @param ppAcquiredSize [OUT] [uint16_t[2]] Pointer to the acquired size array, can be smaller than uiSize.
  */
-static inline void BFX_QFIFO_SEND_ACQUIRE_SPLIT(BFX_QFIFO *pFifo, uint16_t uiSize, char *ppData[2], uint16_t ppAcquiredSize[2]) {
+static inline void BFX_QfifoSendAcquireSplit(BFX_QFIFO *pFifo, uint16_t uiSize, char *ppData[2], uint16_t ppAcquiredSize[2]) {
     if (BFX_QFIFO_UNLIKELY(((pFifo)->headReady != (pFifo)->headPend) ||
-        (BFX_QFIFO_FREE_SIZE(pFifo)) == 0)) {
+        (BFX_QfifoFreeSize(pFifo)) == 0)) {
             ppData[0] = NULL;
             ppData[1] = NULL;
             ppAcquiredSize[0] = 0;
             ppAcquiredSize[1] = 0;
             return;
     }
-    uint16_t acquiredSize = (uiSize) < (BFX_QFIFO_FREE_SIZE(pFifo)) ?
-                            (uiSize) : (BFX_QFIFO_FREE_SIZE(pFifo));
-    if ((acquiredSize) <= (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo))) {
+    uint16_t acquiredSize = (uiSize) < (BFX_QfifoFreeSize(pFifo)) ?
+                            (uiSize) : (BFX_QfifoFreeSize(pFifo));
+    if ((acquiredSize) <= (BFX_QfifoFreeNoSplitSize(pFifo))) {
         ppAcquiredSize[0] = (acquiredSize);
         ppAcquiredSize[1] = 0;
         ppData[1] = NULL;
     } else {
-        ppAcquiredSize[0] = (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo));
-        ppAcquiredSize[1] = (acquiredSize) - (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo));
+        ppAcquiredSize[0] = (BFX_QfifoFreeNoSplitSize(pFifo));
+        ppAcquiredSize[1] = (acquiredSize) - (BFX_QfifoFreeNoSplitSize(pFifo));
         ppData[1] = &((pFifo)->buf[0]);
     }
     ppData[0] = &((pFifo)->buf[(pFifo)->headReady]);
@@ -219,7 +219,7 @@ static inline void BFX_QFIFO_SEND_ACQUIRE_SPLIT(BFX_QFIFO *pFifo, uint16_t uiSiz
  * @param ppData         [OUT] [char *[2]]   Pointer to the buffer array.
  * @param ppAcquiredSize [OUT] [uint16_t[2]] Pointer to the acquired size array, can be smaller than uiSize.
  */
-static inline void BFX_QFIFO_SEND_ACQUIRE_VARI(BFX_QFIFO *pFifo, char *ppData[2], uint16_t ppAcquiredSize[2]) {
+static inline void BFX_QfifoSendAcquireVari(BFX_QFIFO *pFifo, char *ppData[2], uint16_t ppAcquiredSize[2]) {
     if (BFX_QFIFO_UNLIKELY((pFifo)->headReady != (pFifo)->headPend)) {
             ppData[0] = NULL;
             ppData[1] = NULL;
@@ -227,8 +227,8 @@ static inline void BFX_QFIFO_SEND_ACQUIRE_VARI(BFX_QFIFO *pFifo, char *ppData[2]
             ppAcquiredSize[1] = 0;
             return;
     }
-    uint16_t noSplitFreeSize = (BFX_QFIFO_FREE_NOSPLIT_SIZE(pFifo));
-    uint16_t allFreeSize = (BFX_QFIFO_FREE_SIZE(pFifo));
+    uint16_t noSplitFreeSize = (BFX_QfifoFreeNoSplitSize(pFifo));
+    uint16_t allFreeSize = (BFX_QfifoFreeSize(pFifo));
     ppAcquiredSize[0] = noSplitFreeSize;
     ppAcquiredSize[1] = allFreeSize - noSplitFreeSize;
     ppData[1] = &((pFifo)->buf[0]);
@@ -241,7 +241,7 @@ static inline void BFX_QFIFO_SEND_ACQUIRE_VARI(BFX_QFIFO *pFifo, char *ppData[2]
  * 
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  */
-static inline void BFX_QFIFO_SEND_COMMIT(BFX_QFIFO *pFifo) {
+static inline void BFX_QfifoSendCommit(BFX_QFIFO *pFifo) {
     pFifo->headReady = pFifo->headPend;
 }
 
@@ -251,9 +251,9 @@ static inline void BFX_QFIFO_SEND_COMMIT(BFX_QFIFO *pFifo) {
  * @param pFifo  [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @param uiSize [IN] [uint16_t]  Size of the commited length.
  */
-static inline void BFX_QFIFO_SEND_COMMIT_VARI(BFX_QFIFO *pFifo, uint16_t uiSize) {
+static inline void BFX_QfifoSendCommitVari(BFX_QFIFO *pFifo, uint16_t uiSize) {
     if (BFX_QFIFO_UNLIKELY((pFifo)->headReady == (pFifo)->headPend ||
-        (uiSize > (BFX_QFIFO_FREE_VARI_SIZE(pFifo))))) {
+        (uiSize > (BFX_QfifoFreeVariSize(pFifo))))) {
         return;
     }
     (pFifo)->headReady = ((pFifo)->headReady + uiSize) % (pFifo)->size;
@@ -265,7 +265,7 @@ static inline void BFX_QFIFO_SEND_COMMIT_VARI(BFX_QFIFO *pFifo, uint16_t uiSize)
  * 
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  */
-static inline void BFX_QFIFO_SEND_UNDO(BFX_QFIFO *pFifo) {
+static inline void BFX_QfifoSendUndo(BFX_QFIFO *pFifo) {
     pFifo->headPend = pFifo->headReady;
 }
 
@@ -277,15 +277,15 @@ static inline void BFX_QFIFO_SEND_UNDO(BFX_QFIFO *pFifo) {
  * @param pData          [OUT] [char *]    Pointer to the buffer.
  * @param uiAcquiredSize [OUT] [uint16_t]  Pointer to the acquired size, can be smaller than uiSize.
  */
-static inline void BFX_QFIFO_RECV_ACQUIRE_NOSPLIT(BFX_QFIFO *pFifo, uint16_t uiSize, char **pData, uint16_t *uiAcquiredSize) {
+static inline void BFX_QfifoRecvAcquireNoSplit(BFX_QFIFO *pFifo, uint16_t uiSize, char **pData, uint16_t *uiAcquiredSize) {
     if (BFX_QFIFO_UNLIKELY(((pFifo)->tailReady != (pFifo)->tailPend ||
-        (BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo)) == 0))) {
+        (BFX_QfifoRecvNoSplitSize(pFifo)) == 0))) {
             *pData = NULL;
             *uiAcquiredSize = 0;
             return;
     }
-    *uiAcquiredSize = (uiSize) < (BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo)) ?
-                        (uiSize) : (BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo));
+    *uiAcquiredSize = (uiSize) < (BFX_QfifoRecvNoSplitSize(pFifo)) ?
+                        (uiSize) : (BFX_QfifoRecvNoSplitSize(pFifo));
     *pData = &((pFifo)->buf[(pFifo)->tailReady]);
     (pFifo)->tailPend = ((pFifo)->tailReady + (*uiAcquiredSize)) % (pFifo)->size;
 }
@@ -298,24 +298,24 @@ static inline void BFX_QFIFO_RECV_ACQUIRE_NOSPLIT(BFX_QFIFO *pFifo, uint16_t uiS
  * @param ppData         [OUT] [char *[2]]   Pointer to the buffer array.
  * @param ppAcquiredSize [OUT] [uint16_t[2]] Pointer to the acquired size array, can be smaller than uiSize.
  */
-static inline void BFX_QFIFO_RECV_ACQUIRE_SPLIT(BFX_QFIFO *pFifo, uint16_t uiSize, char *ppData[2], uint16_t ppAcquiredSize[2]) {
+static inline void BFX_QfifoRecvAcquireSplit(BFX_QFIFO *pFifo, uint16_t uiSize, char *ppData[2], uint16_t ppAcquiredSize[2]) {
     if (BFX_QFIFO_UNLIKELY(((pFifo)->tailReady != (pFifo)->tailPend ||
-        (BFX_QFIFO_RECV_SIZE(pFifo)) == 0))) {
+        (BFX_QfifoRecvSize(pFifo)) == 0))) {
             ppData[0] = NULL;
             ppData[1] = NULL;
             ppAcquiredSize[0] = 0;
             ppAcquiredSize[1] = 0;
             return;
     }
-    uint16_t acquiredSize = (uiSize) < (BFX_QFIFO_RECV_SIZE(pFifo)) ?
-                        (uiSize) : (BFX_QFIFO_RECV_SIZE(pFifo));
-    if ((acquiredSize) <= BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo)) {
+    uint16_t acquiredSize = (uiSize) < (BFX_QfifoRecvSize(pFifo)) ?
+                        (uiSize) : (BFX_QfifoRecvSize(pFifo));
+    if ((acquiredSize) <= BFX_QfifoRecvNoSplitSize(pFifo)) {
         ppAcquiredSize[0] = (acquiredSize);
         ppAcquiredSize[1] = 0;
         ppData[1] = NULL;
     } else {
-        ppAcquiredSize[0] = (BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo));
-        ppAcquiredSize[1] = (acquiredSize) - (BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo));
+        ppAcquiredSize[0] = (BFX_QfifoRecvNoSplitSize(pFifo));
+        ppAcquiredSize[1] = (acquiredSize) - (BFX_QfifoRecvNoSplitSize(pFifo));
         ppData[1] = &((pFifo)->buf[0]);
     }
     ppData[0] = &((pFifo)->buf[(pFifo)->tailReady]);
@@ -329,7 +329,7 @@ static inline void BFX_QFIFO_RECV_ACQUIRE_SPLIT(BFX_QFIFO *pFifo, uint16_t uiSiz
  * @param ppData         [OUT] [char *[2]]   Pointer to the buffer array.
  * @param ppAcquiredSize [OUT] [uint16_t[2]] Pointer to the acquired size array, can be smaller than uiSize.
  */
-static inline void BFX_QFIFO_RECV_ACQUIRE_VARI(BFX_QFIFO *pFifo, char *ppData[2], uint16_t ppAcquiredSize[2]) {
+static inline void BFX_QfifoRecvAcquireVari(BFX_QFIFO *pFifo, char *ppData[2], uint16_t ppAcquiredSize[2]) {
     if (BFX_QFIFO_UNLIKELY((pFifo)->tailReady != (pFifo)->tailPend)) {
             ppData[0] = NULL;
             ppData[1] = NULL;
@@ -337,8 +337,8 @@ static inline void BFX_QFIFO_RECV_ACQUIRE_VARI(BFX_QFIFO *pFifo, char *ppData[2]
             ppAcquiredSize[1] = 0;
             return;
     }
-    uint16_t noSplitRecvSize = (BFX_QFIFO_RECV_NOSPLIT_SIZE(pFifo));
-    uint16_t allRecvSize = (BFX_QFIFO_RECV_SIZE(pFifo));
+    uint16_t noSplitRecvSize = (BFX_QfifoRecvNoSplitSize(pFifo));
+    uint16_t allRecvSize = (BFX_QfifoRecvSize(pFifo));
     ppAcquiredSize[0] = noSplitRecvSize;
     ppAcquiredSize[1] = allRecvSize - noSplitRecvSize;
     ppData[1] = &((pFifo)->buf[0]);
@@ -351,7 +351,7 @@ static inline void BFX_QFIFO_RECV_ACQUIRE_VARI(BFX_QFIFO *pFifo, char *ppData[2]
  * 
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  */
-static inline void BFX_QFIFO_RECV_COMMIT(BFX_QFIFO *pFifo) {
+static inline void BFX_QfifoRecvCommit(BFX_QFIFO *pFifo) {
     pFifo->tailReady = pFifo->tailPend;
 }
 
@@ -361,9 +361,9 @@ static inline void BFX_QFIFO_RECV_COMMIT(BFX_QFIFO *pFifo) {
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  * @param size  [IN] [uint16_t]  Size of the commited length.
  */
-static inline void BFX_QFIFO_RECV_COMMIT_VARI(BFX_QFIFO *pFifo, uint16_t size) {
+static inline void BFX_QfifoRecvCommitVari(BFX_QFIFO *pFifo, uint16_t size) {
     if (BFX_QFIFO_UNLIKELY((pFifo->tailReady == (pFifo)->tailPend) ||
-        (size > (BFX_QFIFO_RECV_VARI_SIZE(pFifo))))) {
+        (size > (BFX_QfifoRecvVariSize(pFifo))))) {
         return;
     }
     (pFifo)->tailReady = ((pFifo)->tailReady + size) % (pFifo)->size;
@@ -375,7 +375,7 @@ static inline void BFX_QFIFO_RECV_COMMIT_VARI(BFX_QFIFO *pFifo, uint16_t size) {
  * 
  * @param pFifo [IN] [BFX_QFIFO *] Pointer to the FIFO structure.
  */
-static inline void BFX_QFIFO_RECV_UNDO(BFX_QFIFO *pFifo) {
+static inline void BFX_QfifoRecvUndo(BFX_QFIFO *pFifo) {
     pFifo->tailPend = pFifo->tailReady;
 }
 
@@ -386,7 +386,7 @@ static inline void BFX_QFIFO_RECV_UNDO(BFX_QFIFO *pFifo) {
  * @param i      [IN] [uint16_t]        Index of the byte to get.
  * @return char Byte at the specified index.
  */
-static inline char BFX_QFIFO_PIECE_GET_BYTE(BFX_QFIFO_PIECE *hPiece, uint16_t i) {
+static inline char BFX_QfifoPieceGetByte(BFX_QFIFO_PIECE *hPiece, uint16_t i) {
     return ((i < hPiece->len[0]) ? hPiece->buf[0][i] : hPiece->buf[1][i - hPiece->len[0]]);
 }
 

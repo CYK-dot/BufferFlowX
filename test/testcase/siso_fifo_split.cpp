@@ -24,7 +24,7 @@ protected:
     BFX_QFIFO fifo;
 
     void SetUp() override {
-        BFX_QFIFO_INIT(&fifo, buffer, BUFFER_SIZE);
+        BFX_QfifoInit(&fifo, buffer, BUFFER_SIZE);
         buffer[BUFFER_SIZE] = '\e';
         buffer[BUFFER_SIZE + 1] = '\e';
         buffer[BUFFER_SIZE + 2] = '\e';
@@ -33,20 +33,20 @@ protected:
         char* data[2];
         uint16_t acquired[2];
         for (uint16_t i = 0; i < dataSize; i++) {
-            BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, 1, data, acquired);
+            BFX_QfifoSendAcquireSplit(&fifo, 1, data, acquired);
             ASSERT_EQ(acquired[0], 1);
             ASSERT_NE(data[0], nullptr);
-            BFX_QFIFO_SEND_COMMIT(&fifo);
+            BFX_QfifoSendCommit(&fifo);
         }
     }
     void fetchFifo(uint16_t dataSize) {
         char* data[2];
         uint16_t acquired[2];
         for (uint16_t i = 0; i < dataSize; i++) {
-            BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, 1, data, acquired);
+            BFX_QfifoRecvAcquireSplit(&fifo, 1, data, acquired);
             ASSERT_EQ(acquired[0], 1);
             ASSERT_NE(data[0], nullptr);
-            BFX_QFIFO_RECV_COMMIT(&fifo);
+            BFX_QfifoRecvCommit(&fifo);
         }
     }
     void checkBufferOverflow(void) {
@@ -68,16 +68,16 @@ TEST_F(EmFifoTestSplit, SendAndReceiveFromStartToMiddle) {
     const uint16_t SEND_SIZE = sizeof(strToSend);
     const uint16_t RECV_SIZE = sizeof(strToSend);
 
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
     ASSERT_TRUE(sendPos[0] != NULL);
     ASSERT_EQ(sendPos[1], nullptr);
     ASSERT_EQ(sendAcquiredSize[0], SEND_SIZE);
     ASSERT_EQ(sendAcquiredSize[1], 0);
 
     memcpy(sendPos[0], strToSend, SEND_SIZE);
-    BFX_QFIFO_SEND_COMMIT(&fifo);
+    BFX_QfifoSendCommit(&fifo);
 
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
     ASSERT_TRUE(recvPos[0] != NULL);
     ASSERT_EQ(recvPos[1], nullptr);
     ASSERT_EQ(recvAcquiredSize[0], RECV_SIZE);
@@ -85,7 +85,7 @@ TEST_F(EmFifoTestSplit, SendAndReceiveFromStartToMiddle) {
 
     memcpy(strToRecv, recvPos[0], RECV_SIZE);
     ASSERT_STREQ(strToRecv, strToSend);
-    BFX_QFIFO_RECV_COMMIT(&fifo);
+    BFX_QfifoRecvCommit(&fifo);
 }
 
 TEST_F(EmFifoTestSplit, SendAndReceiveFromStartToBound) {
@@ -98,14 +98,14 @@ TEST_F(EmFifoTestSplit, SendAndReceiveFromStartToBound) {
     const uint16_t SEND_SIZE = BUFFER_SIZE - 1;
     const uint16_t RECV_SIZE = BUFFER_SIZE - 1;
 
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
     memcpy(sendPos[0], strToSend, SEND_SIZE);
-    BFX_QFIFO_SEND_COMMIT(&fifo);
+    BFX_QfifoSendCommit(&fifo);
 
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
     memcpy(strToRecv, recvPos[0], RECV_SIZE);
     ASSERT_STREQ(strToRecv, strToSend);
-    BFX_QFIFO_RECV_COMMIT(&fifo);
+    BFX_QfifoRecvCommit(&fifo);
 
     checkBufferOverflow();
 }
@@ -126,16 +126,16 @@ TEST_F(EmFifoTestSplit, SendAndReceiveFromMiddleToSplitBound) {
     fillFifo(FILL_SIZE);
     fetchFifo(FILL_SIZE);
 
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
     memcpy(sendPos[0], strToSend, FIRST_PART_SIZE);
     memcpy(sendPos[1], &strToSend[FIRST_PART_SIZE], SECOND_PART_SIZE);
-    BFX_QFIFO_SEND_COMMIT(&fifo);
+    BFX_QfifoSendCommit(&fifo);
 
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
     memcpy(strToRecv, recvPos[0], FIRST_PART_SIZE);
     memcpy(&strToRecv[FIRST_PART_SIZE], recvPos[1], SECOND_PART_SIZE);
     ASSERT_STREQ(strToRecv, strToSend);
-    BFX_QFIFO_RECV_COMMIT(&fifo);
+    BFX_QfifoRecvCommit(&fifo);
 
     checkBufferOverflow();
 }
@@ -146,14 +146,14 @@ TEST_F(EmFifoTestSplit, ProduceOverHead) {
     uint16_t sendAcquiredSize[2];
     const uint16_t SEND_SIZE = BUFFER_SIZE - 1;
 
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
     memcpy(sendPos[0], strToSend, sizeof(strToSend));
 
-    uint16_t freeSize = BFX_QFIFO_FREE_NOSPLIT_SIZE(&fifo);
+    uint16_t freeSize = BFX_QfifoFreeNoSplitSize(&fifo);
     ASSERT_EQ(freeSize, 0);
 
-    BFX_QFIFO_SEND_COMMIT(&fifo);
-    freeSize = BFX_QFIFO_FREE_SIZE(&fifo);
+    BFX_QfifoSendCommit(&fifo);
+    freeSize = BFX_QfifoFreeSize(&fifo);
     ASSERT_EQ(freeSize, 0);
 
     checkBufferOverflow();
@@ -165,13 +165,13 @@ TEST_F(EmFifoTestSplit, ConsumeOverHead) {
     const uint16_t RECV_SIZE = BUFFER_SIZE / 2;
 
     fillFifo(RECV_SIZE);
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
 
-    uint16_t freeSize = BFX_QFIFO_RECV_NOSPLIT_SIZE(&fifo);
+    uint16_t freeSize = BFX_QfifoRecvNoSplitSize(&fifo);
     ASSERT_EQ(freeSize, 0);
 
-    BFX_QFIFO_RECV_COMMIT(&fifo);
-    freeSize = BFX_QFIFO_RECV_SIZE(&fifo);
+    BFX_QfifoRecvCommit(&fifo);
+    freeSize = BFX_QfifoRecvSize(&fifo);
     ASSERT_EQ(freeSize, 0);
 }
 
@@ -180,7 +180,7 @@ TEST_F(EmFifoTestSplit, ProducerOverflow) {
     uint16_t sendAcquiredSize[2];
     const uint16_t SEND_SIZE = BUFFER_SIZE * 2;
 
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos, sendAcquiredSize);
     ASSERT_EQ(sendAcquiredSize[0], BUFFER_SIZE - 1);
     ASSERT_TRUE(sendPos[0] != NULL);
 }
@@ -192,7 +192,7 @@ TEST_F(EmFifoTestSplit, ConsumerOverflow) {
     const uint16_t RECV_SIZE = FILL_SIZE * 2;
 
     fillFifo(FILL_SIZE);
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos, recvAcquiredSize);
     ASSERT_EQ(recvAcquiredSize[0], FILL_SIZE);
     ASSERT_TRUE(recvPos[0] != NULL);
 }
@@ -205,8 +205,8 @@ TEST_F(EmFifoTestSplit, RefuseMultiProducer) {
     uint16_t sendAcquiredSize2[2];
     const uint16_t SEND_SIZE = sizeof(strToSend);
 
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos1, sendAcquiredSize1);
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos2, sendAcquiredSize2);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos1, sendAcquiredSize1);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos2, sendAcquiredSize2);
     ASSERT_TRUE(sendPos1[0] != NULL);
     ASSERT_TRUE(sendPos2[0] == NULL);
     ASSERT_EQ(sendAcquiredSize1[0], SEND_SIZE);
@@ -214,8 +214,8 @@ TEST_F(EmFifoTestSplit, RefuseMultiProducer) {
     ASSERT_EQ(sendAcquiredSize2[0], 0);
     ASSERT_EQ(sendAcquiredSize2[1], 0);
 
-    BFX_QFIFO_SEND_COMMIT(&fifo);
-    BFX_QFIFO_SEND_ACQUIRE_SPLIT(&fifo, SEND_SIZE, sendPos2, sendAcquiredSize2);
+    BFX_QfifoSendCommit(&fifo);
+    BFX_QfifoSendAcquireSplit(&fifo, SEND_SIZE, sendPos2, sendAcquiredSize2);
     ASSERT_TRUE(sendPos2[0] != NULL);
     ASSERT_EQ(sendAcquiredSize2[0], SEND_SIZE);
 }
@@ -228,15 +228,15 @@ TEST_F(EmFifoTestSplit, RefuseMultiConsumer) {
     const uint16_t RECV_SIZE = 5;
 
     fillFifo(2 * RECV_SIZE);
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos1, recvAcquiredSize1);
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos2, recvAcquiredSize2);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos1, recvAcquiredSize1);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos2, recvAcquiredSize2);
     ASSERT_TRUE(recvPos1[0] != NULL);
     ASSERT_TRUE(recvPos2[0] == NULL);
     ASSERT_EQ(recvAcquiredSize1[0], RECV_SIZE);
     ASSERT_EQ(recvAcquiredSize2[0], 0);
 
-    BFX_QFIFO_RECV_COMMIT(&fifo);
-    BFX_QFIFO_RECV_ACQUIRE_SPLIT(&fifo, RECV_SIZE, recvPos2, recvAcquiredSize2);
+    BFX_QfifoRecvCommit(&fifo);
+    BFX_QfifoRecvAcquireSplit(&fifo, RECV_SIZE, recvPos2, recvAcquiredSize2);
     ASSERT_TRUE(recvPos2[0] != NULL);
     ASSERT_EQ(recvAcquiredSize2[0], RECV_SIZE);
 }
