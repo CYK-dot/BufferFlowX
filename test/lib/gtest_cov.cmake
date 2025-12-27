@@ -76,6 +76,10 @@ function(add_coverage_target TARGET_NAME)
         COMMAND ${GCOVR}
             --root ${CMAKE_SOURCE_DIR}/../
             --exclude "${CMAKE_SOURCE_DIR}/.*"
+            --exclude "${CMAKE_SOURCE_DIR}/lib/headers/.*"
+            --exclude ".*gtest.*"
+            --exclude ".*gmock.*"
+            --exclude "test/lib/.*"
             --html-details ${COVERAGE_DIR}/coverage.html
             --xml ${COVERAGE_DIR}/coverage.xml
             --print-summary
