@@ -182,3 +182,11 @@ TEST(CliRaw, SpaceMoreThanOne) {
     uint16_t retVal = BFX_CliRawMatch(toMatch, fmt, paramIndex, 15);
     EXPECT_EQ(retVal, 0);
 }
+
+TEST(CliRaw, TokenNotMatch) {
+    char fmt[] = "hello world";
+    char toMatch[] = "hell world\n";
+    uint16_t paramIndex[15] = {0};
+    uint16_t retVal = BFX_CliRawMatch(toMatch, fmt, paramIndex, 15);
+    EXPECT_EQ(retVal, UINT16_MAX);
+}
