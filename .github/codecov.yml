@@ -1,3 +1,9 @@
-ignore:
-  - ".*/test/lib/headers/gtest/.*"
-  - ".*/test/lib/headers/gmock/.*"
+coverage:
+  status:
+    project: false
+  
+  ignore:
+    - "test/lib/headers/gtest/*"
+    - "test/lib/headers/gmock/*"
+    - "**/gtest/*"
+    - "**/gmock/*"
