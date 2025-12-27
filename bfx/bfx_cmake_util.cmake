@@ -6,11 +6,13 @@ set(BFX_CMAKE_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
 ##
 macro(bfx_get_include_dirs OUT_VAR)
     list(APPEND ${OUT_VAR}
+        ${BFX_CMAKE_ROOT_DIR}/common
         ${BFX_CMAKE_ROOT_DIR}/util
-        ${BFX_CMAKE_ROOT_DIR}/dfifo
+        ${BFX_CMAKE_ROOT_DIR}/double_fifo
         ${BFX_CMAKE_ROOT_DIR}/siso_fifo
         ${BFX_CMAKE_ROOT_DIR}/cli
         ${BFX_CMAKE_ROOT_DIR}/fsm
+        ${BFX_CMAKE_ROOT_DIR}/l2proto
     )
 endmacro()
 
@@ -34,13 +36,24 @@ macro(bfx_get_cli_srcs OUT_VAR)
     )
 endmacro()
 
+## @name bfx_get_l2proto_srcs
+    ## @brief append source files of BFX_PROTOL2 to OUT_VAR
+    ## @param OUT_VAR list of sources
+##
+macro(bfx_get_l2proto_srcs OUT_VAR)
+    list(APPEND ${OUT_VAR}
+        ${BFX_CMAKE_ROOT_DIR}/l2proto/bfx_l2proto.c
+    )
+endmacro()
+
 ## @name bfx_get_all_srcs
     ## @brief append all source files of BFX to OUT_VAR
     ## @param OUT_VAR list of sources
 ##
-macro(bfx_get_all_srcs OUT_VA)
-    bfx_get_fsm_srcs(${OUT_VA})
-    bfx_get_cli_srcs(${OUT_VA})
+macro(bfx_get_all_srcs OUT_VAR)
+    bfx_get_fsm_srcs(${OUT_VAR})
+    bfx_get_cli_srcs(${OUT_VAR})
+    bfx_get_l2proto_srcs(${OUT_VAR})
 endmacro()
 
 ## @name bfx_add_puml_fsm

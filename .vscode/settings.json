@@ -71,6 +71,12 @@
         "stdexcept": "c",
         "string.h": "c",
         "semaphore": "cpp",
-        "initializer_list": "cpp"
+        "initializer_list": "cpp",
+        "cstring": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "cstdbool": "cpp",
+        "bfx_l2proto.h": "c",
+        "bfx_def.h": "c"
     }
 }

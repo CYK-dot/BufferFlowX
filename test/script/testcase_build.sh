@@ -15,6 +15,9 @@ fi
 # Navigate to the build directory
 cd build
 
+# Clean the entire build directory, but preserve CMake cache files to avoid full reconfiguration
+find . -mindepth 1 -maxdepth 1 -not -name 'CMakeCache.txt' -not -name 'CMakeFiles' -not -name 'cmake_install.cmake' -exec rm -rf {} +
+
 # Run cmake and make commands
 echo "Configuring with CMake..."
 cmake .. -DENABLE_CODE_COVERAGE=ON

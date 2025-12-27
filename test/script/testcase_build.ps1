@@ -12,6 +12,10 @@ if (!(Test-Path "build")) {
 # Navigate to the build directory
 Set-Location "build"
 
+# Clean the entire build directory
+Get-ChildItem -Path . -Force | Where-Object { $_.Name -ne 'CMakeCache.txt' -and $_.Name -ne 'CMakeFiles' -and $_.Name -ne 'cmake_install.cmake' } | Remove-Item -Recurse -Force
+# Alternative: Remove-Item * -Recurse -Force -ErrorAction SilentlyContinue
+
 # Run cmake and make commands
 cmake .. -DENABLE_CODE_COVERAGE=ON
 if ($LASTEXITCODE -ne 0) {
@@ -27,7 +31,7 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-make all
+make -j8 all
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Make all failed with exit code $LASTEXITCODE" -ForegroundColor Red
     Set-Location $scriptDir

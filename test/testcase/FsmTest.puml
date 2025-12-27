@@ -11,7 +11,7 @@
     BootLoader --> CoreDump : ErrOccur/校验错误
     BootLoader --> CoreDump : ErrOccur/加载错误
     RunMain --> CoreDump : ErrOccur/主程序运行错误
-    CoreDump --> [*] : DumpFin
+    CoreDump --> Setup : SystemReboot/系统重启
 
     state RunMain {
         LedOn: 点亮LED
@@ -24,6 +24,10 @@
         LedOff --> DisplayOLED : BottonPressed/按钮按下
 
         state DisplayOLED {
+            SetupIIC: 初始化IIC
+            InitOLED: 初始化OLED
+            ShowText: 显示文本
+
             [*] --> SetupIIC
             SetupIIC --> InitOLED : IICInitDone/IIC初始化完成
             InitOLED --> ShowText : OLEDInitDone/OLED初始化完成

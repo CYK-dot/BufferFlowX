@@ -56,6 +56,7 @@ set(TEST_SOURCES
     "testcase/siso_fifo_split.cpp"
     "testcase/cli_raw.cpp"
     "testcase/fsm.cpp"
+    "testcase/l2proto.cpp"
 )
 
 # 可执行文件 ============================================================
