@@ -1,7 +1,0 @@
-ignore:
-  - ".*"
-  - "lib/headers/.*"
-  - ".*gtest.*"
-  - ".*gmock.*"
-  - "test/lib/.*"
-  - "test/lib/gtest_cov.cmake"
