@@ -67,8 +67,7 @@ typedef enum tagBFX_PROTO_L2_EVENT {
     BFX_PROTOL2_EVENT_PARAM_ERROR = 1,
     BFX_PROTOL2_EVENT_ENCODED_PKT = 2,
     BFX_PROTOL2_EVENT_DROP_SYNC_ERROR = 3,
-    BFX_PROTOL2_EVENT_DROP_TOO_LONG = 4,
-    BFX_PROTOL2_EVENT_DROP_FCS_ERROR = 5,
+    BFX_PROTOL2_EVENT_DROP_FCS_ERROR = 4,
 } BFX_PROTO_L2_EVENT;
 
 /* C++ ---------------------------------------------------------------------------*/

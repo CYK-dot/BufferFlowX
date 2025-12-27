@@ -119,12 +119,6 @@ BFX_STATIC_INLINE uint8_t BFX_ProtoL2Decode_Head(const BFX_PROTO_L2_DESC *desc,
     uint8_t dataLenBytes = (desc->lenBitCnt + 7) / 8;
     desc->ntoh(rxBuffer->buf, desc->headByteCnt);
     memcpy(&payload->dataLen, &rxBuffer->buf[headIndex], dataLenBytes);
-    /* check dataLen field */
-    if (payload->dataLen >= (1 << desc->lenBitCnt)) {
-        rxBuffer->status = 0;
-        rxBuffer->nextOffset = 0;
-        return BFX_PROTOL2_DECODE_FAIL;
-    }
     return BFX_PROTOL2_DECODED;
 }
 
@@ -252,10 +246,6 @@ BFX_PROTO_L2_EVENT BFX_ProtoL2Decode(const BFX_PROTO_L2_DESC *desc,
             if (event == BFX_PROTOL2_DECODED) {
                 BFX_PROTOL2_RESET_RXBUFFER(rxBuffer);
                 rxBuffer->status = BFX_PROTOL2_DATA;
-            } else if (event == BFX_PROTOL2_DECODE_FAIL) {
-                BFX_PROTOL2_RESET_RXBUFFER(rxBuffer);
-                rxBuffer->status = BFX_PROTOL2_PREAMBLE;
-                return BFX_PROTOL2_EVENT_DROP_TOO_LONG;
             }
         } break;
         case BFX_PROTOL2_DATA: {
