@@ -18,7 +18,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y cmake build-essential git python3 python3-pip
-        pip3 install gcovr jinja2
+        pip3 install gcovr jinja2 pyyaml pytest
         
     - name: Setup test framework
       working-directory: ./test/script
@@ -37,6 +37,12 @@ jobs:
       run: |
         chmod +x testcase_run.sh
         ./testcase_run.sh
+
+    - name: Run Python tests
+      working-directory: ./test/tool_testcase
+      run: |
+        chmod +x run_test.sh
+        ./run_test.sh
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5

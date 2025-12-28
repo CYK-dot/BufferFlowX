@@ -77,6 +77,7 @@
         "locale": "cpp",
         "cstdbool": "cpp",
         "bfx_l2proto.h": "c",
-        "bfx_def.h": "c"
+        "bfx_def.h": "c",
+        "bfx_cli_core.h": "c"
     }
 }

@@ -101,6 +101,18 @@ BFX_STATIC_INLINE uint16_t BFX_ProtoL2GetMaxPktLen(const BFX_PROTO_L2_DESC *desc
 }
 
 /**
+ * @brief Get the L2 RX Buffer Length
+ * 
+ * @param desc L2 Protocol Description
+ * @param maxDataLen Max Data Length
+ * @return uint16_t L2 RX Buffer Length
+ */
+BFX_STATIC_INLINE uint16_t BFX_ProtoL2GetRxBufferLen(const BFX_PROTO_L2_DESC *desc, uint16_t maxDataLen)
+{
+    return maxDataLen + 2 * desc->fcsByteCnt;
+}
+
+/**
  * @brief Setup L2 RX Buffer
  * 
  * @param rxBuffer L2 RX Buffer

@@ -35,6 +35,9 @@
 #define BFX_WEAK_TYPE
 #endif
 
+#define contain_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - offsetof(type, member)))
+
 /* Exported typedef --------------------------------------------------------------*/
 
 /* C++ ---------------------------------------------------------------------------*/

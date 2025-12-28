@@ -54,7 +54,7 @@ set(TEST_SOURCES
     "testcase/dfifo.cpp"
     "testcase/siso_fifo_nosplit.cpp"
     "testcase/siso_fifo_split.cpp"
-    "testcase/cli_raw.cpp"
+    "testcase/cli_core.cpp"
     "testcase/fsm.cpp"
     "testcase/l2proto.cpp"
 )

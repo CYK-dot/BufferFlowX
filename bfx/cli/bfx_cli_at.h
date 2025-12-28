@@ -1,24 +1,20 @@
 /**
- * @file bfx_util.h
+ * @file bfx_cli_at.h
  * @author CYK-Dot
  * @brief Brief description
  * @version 0.1
- * @date 2025-12-13
+ * @date 2025-12-28
  *
  * @copyright Copyright (c) 2025 CYK-Dot, MIT License.
  */
-#ifndef __bfx_util_H__
-#define __bfx_util_H__
+#ifndef __bfx_cli_at_H__
+#define __bfx_cli_at_H__
 
 /* Header import ------------------------------------------------------------------*/
-#include <stddef.h>
 
 /* Config macros -----------------------------------------------------------------*/
 
 /* Export macros -----------------------------------------------------------------*/
-
-#define contain_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
 
 /* Exported typedef --------------------------------------------------------------*/
 

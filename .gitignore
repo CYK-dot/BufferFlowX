@@ -48,3 +48,8 @@ build/
 
 # bfx generated files
 generated/
+
+# python cache
+__pycache__/
+.pycache/
+.pytest_cache/

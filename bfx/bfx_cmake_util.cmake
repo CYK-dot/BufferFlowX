@@ -7,7 +7,6 @@ set(BFX_CMAKE_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
 macro(bfx_get_include_dirs OUT_VAR)
     list(APPEND ${OUT_VAR}
         ${BFX_CMAKE_ROOT_DIR}/common
-        ${BFX_CMAKE_ROOT_DIR}/util
         ${BFX_CMAKE_ROOT_DIR}/double_fifo
         ${BFX_CMAKE_ROOT_DIR}/siso_fifo
         ${BFX_CMAKE_ROOT_DIR}/cli
@@ -32,7 +31,10 @@ endmacro()
 ##
 macro(bfx_get_cli_srcs OUT_VAR)
     list(APPEND ${OUT_VAR}
-        ${BFX_CMAKE_ROOT_DIR}/cli/bfx_cli_raw.c
+        ${BFX_CMAKE_ROOT_DIR}/cli/bfx_cli_core.c
+        ${BFX_CMAKE_ROOT_DIR}/cli/bfx_cli_at.c
+        ${BFX_CMAKE_ROOT_DIR}/cli/bfx_cli_unix.c
+        ${BFX_CMAKE_ROOT_DIR}/cli/bfx_cli_view.c
     )
 endmacro()
 

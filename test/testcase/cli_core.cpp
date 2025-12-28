@@ -10,7 +10,7 @@
 
 /* Header import ------------------------------------------------------------------*/
 #include <gtest/gtest.h>
-#include "bfx_cli_raw.h"
+#include "bfx_cli_core.h"
 
 /* Config macros ------------------------------------------------------------------*/
 

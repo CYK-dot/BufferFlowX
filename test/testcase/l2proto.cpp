@@ -96,7 +96,7 @@ bool decodePacket(const BFX_PROTO_L2_DESC *desc, const uint8_t *encodedData, uin
     return packetDecoded;
 }
 
-#define compareDecodeAssert(decodedPayload, payload) do { \
+#define DECODE_COMPARE_ASSERT(decodedPayload, payload) do { \
     EXPECT_EQ(decodedPayload.dataLen, payload.dataLen); \
     EXPECT_EQ(decodedPayload.usr, payload.usr); \
     for (int i = 0; i < payload.dataLen; i++) { \
@@ -106,7 +106,7 @@ bool decodePacket(const BFX_PROTO_L2_DESC *desc, const uint8_t *encodedData, uin
 
 /* Test cases ---------------------------------------------------------------------*/
 
-TEST(L2ProtoTest, EncodeOverflowDetect) {
+TEST(L2ProtoTest, EncodeShouldNotOverflow) {
     /* create proto */
     BFX_PROTO_L2_DESC desc = createDefaultL2Desc();
     /* create tx payload */
@@ -139,7 +139,55 @@ TEST(L2ProtoTest, EncodeDecodeNormalFlow) {
     BFX_PROTO_L2_PKT decodedPayload = {0};
     bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
     ASSERT_TRUE(packetDecoded);
-    compareDecodeAssert(decodedPayload, payload);
+    DECODE_COMPARE_ASSERT(decodedPayload, payload);
+}
+
+TEST(L2ProtoTest, DecodeShouldNotOverflow) {
+    /* create proto */
+    BFX_PROTO_L2_DESC desc = createDefaultL2Desc();
+    /* create tx payload */
+    uint8_t testData[] = {0x01, 0x02, 0x03, 0x04};
+    BFX_PROTO_L2_PKT payload = createTestPayload(testData, sizeof(testData), 0x05);
+    /* encode tx pkt */
+    uint8_t encodedBuf[100];
+    uint16_t encodedLen = encodeTestPacket(&desc, &payload, encodedBuf, sizeof(encodedBuf));
+    /* create rx buffer */
+    uint8_t rxBuf[100];
+    memset(rxBuf, 0xFF, sizeof(rxBuf));
+    BFX_PROTO_L2_RX_BUFFER rxBuffer = {
+        .buf = &rxBuf[1],
+        .bufSize = BFX_ProtoL2GetRxBufferLen(&desc, sizeof(testData)),
+        .nextOffset = 0,
+        .status = 0
+    };
+    /* decode rx pkt */
+    BFX_PROTO_L2_PKT decodedPayload = {0};
+    bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
+    /* overflow detect */
+    EXPECT_EQ(rxBuf[0], 0xFF);
+    EXPECT_EQ(rxBuf[encodedLen + 1], 0xFF);
+}
+
+TEST(L2ProtoTest, EncodeDecodeCompressedFlow) {
+    /* create proto */
+    BFX_PROTO_L2_DESC desc = createDefaultL2Desc();
+    desc.headByteCnt = 1;
+    desc.lenBitCnt = 7;
+    /* create tx payload */
+    uint8_t testData[] = {0x01, 0x02, 0x03, 0x04};
+    BFX_PROTO_L2_PKT payload = createTestPayload(testData, sizeof(testData), 0x01);
+    /* encode tx pkt */
+    uint8_t encodedBuf[100];
+    uint16_t encodedLen = encodeTestPacket(&desc, &payload, encodedBuf, sizeof(encodedBuf));
+    EXPECT_GT(encodedLen, sizeof(testData));
+    /* create rx buffer */
+    uint8_t rxBuf[100];
+    BFX_PROTO_L2_RX_BUFFER rxBuffer = createRxBuffer(rxBuf, sizeof(rxBuf));
+    /* decode rx pkt */
+    BFX_PROTO_L2_PKT decodedPayload = {0};
+    bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
+    ASSERT_TRUE(packetDecoded);
+    DECODE_COMPARE_ASSERT(decodedPayload, payload);
 }
 
 TEST(L2ProtoTest, EncodeNormalWithDifferentUsrValues) {
@@ -164,7 +212,7 @@ TEST(L2ProtoTest, EncodeNormalWithDifferentUsrValues) {
         BFX_PROTO_L2_PKT decodedPayload = {0};
         bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
         ASSERT_TRUE(packetDecoded) << "Failed to decode with usr value: " << (int)usr;
-        compareDecodeAssert(decodedPayload, payload);
+        DECODE_COMPARE_ASSERT(decodedPayload, payload);
     }
 }
 
@@ -191,7 +239,7 @@ TEST(L2ProtoTest, EncodeDecodeDifferentDataSizes) {
         BFX_PROTO_L2_PKT decodedPayload = {0};
         bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
         ASSERT_TRUE(packetDecoded) << "Failed to decode with data size: " << dataSize;
-        compareDecodeAssert(decodedPayload, payload);
+        DECODE_COMPARE_ASSERT(decodedPayload, payload);
         
         delete[] testData;
     }
@@ -266,7 +314,7 @@ TEST(L2ProtoTest, DecodeNormalFlowWithDifferentData) {
     BFX_PROTO_L2_PKT decodedPayload1 = {0};
     bool packetDecoded1 = decodePacket(&desc, encodedBuf1, encodedLen1, &rxBuffer1, &decodedPayload1);
     ASSERT_TRUE(packetDecoded1);
-    compareDecodeAssert(decodedPayload1, payload1);
+    DECODE_COMPARE_ASSERT(decodedPayload1, payload1);
     
     // Test with another pattern
     uint8_t testData2[] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC};
@@ -279,7 +327,7 @@ TEST(L2ProtoTest, DecodeNormalFlowWithDifferentData) {
     BFX_PROTO_L2_PKT decodedPayload2 = {0};
     bool packetDecoded2 = decodePacket(&desc, encodedBuf2, encodedLen2, &rxBuffer2, &decodedPayload2);
     ASSERT_TRUE(packetDecoded2);
-    compareDecodeAssert(decodedPayload2, payload2);
+    DECODE_COMPARE_ASSERT(decodedPayload2, payload2);
 }
 
 TEST(L2ProtoTest, DecodeWithNullDesc) {
@@ -386,7 +434,7 @@ TEST(L2ProtoTest, DecodeMultiplePacketsSequentially) {
     // Decode first packet
     bool packet1Decoded = decodePacket(&desc, encodedBuf1, encodedLen1, &rxBuffer, &decodedPayload);
     ASSERT_TRUE(packet1Decoded);
-    compareDecodeAssert(decodedPayload, payload1);
+    DECODE_COMPARE_ASSERT(decodedPayload, payload1);
     
     // Reset rx buffer for second packet
     rxBuffer = createRxBuffer(rxBuf, sizeof(rxBuf));
@@ -394,7 +442,7 @@ TEST(L2ProtoTest, DecodeMultiplePacketsSequentially) {
     // Decode second packet
     bool packet2Decoded = decodePacket(&desc, encodedBuf2, encodedLen2, &rxBuffer, &decodedPayload);
     ASSERT_TRUE(packet2Decoded);
-    compareDecodeAssert(decodedPayload, payload2);
+    DECODE_COMPARE_ASSERT(decodedPayload, payload2);
 }
 
 TEST(L2ProtoTest, EncodeDecodeMaxDataLength) {
@@ -424,7 +472,7 @@ TEST(L2ProtoTest, EncodeDecodeMaxDataLength) {
         BFX_PROTO_L2_PKT decodedPayload = {0};
         bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
         ASSERT_TRUE(packetDecoded);
-        compareDecodeAssert(decodedPayload, payload);
+        DECODE_COMPARE_ASSERT(decodedPayload, payload);
         
         delete[] testData;
     } else {
@@ -448,7 +496,7 @@ TEST(L2ProtoTest, EncodeDecodeMaxDataLength) {
         BFX_PROTO_L2_PKT decodedPayload = {0};
         bool packetDecoded = decodePacket(&desc, encodedBuf, encodedLen, &rxBuffer, &decodedPayload);
         ASSERT_TRUE(packetDecoded);
-        compareDecodeAssert(decodedPayload, payload);
+        DECODE_COMPARE_ASSERT(decodedPayload, payload);
         
         delete[] testData;
         delete[] encodedBuf;

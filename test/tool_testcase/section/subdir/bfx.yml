@@ -1,0 +1,7 @@
+name: test_component
+section:
+  - name: .test_section
+    region: RAM
+    align: 4
+    address: 0x20001000
+    size: 0x100
