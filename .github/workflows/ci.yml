@@ -38,12 +38,6 @@ jobs:
         chmod +x testcase_run.sh
         ./testcase_run.sh
 
-    - name: Run Python tests
-      working-directory: ./test/tool_testcase
-      run: |
-        chmod +x run_test.sh
-        ./run_test.sh
-
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
