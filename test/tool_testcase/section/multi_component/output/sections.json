@@ -1,0 +1,174 @@
+{
+  "project_root": ".\\section\\multi_component",
+  "bfx_files": [
+    {
+      "file_path": ".\\section\\multi_component\\component1\\bfx.yml",
+      "content": {
+        "name": "component1",
+        "section": [
+          {
+            "name": ".text",
+            "region": "FLASH",
+            "align": 4,
+            "size": 1024
+          },
+          {
+            "name": ".data",
+            "region": "RAM",
+            "load_region": "FLASH",
+            "align": 4,
+            "size": 512
+          }
+        ]
+      }
+    },
+    {
+      "file_path": ".\\section\\multi_component\\component1\\sub_comp\\bfx.yml",
+      "content": {
+        "name": "component1_sub",
+        "section": [
+          {
+            "name": ".text",
+            "region": "FLASH",
+            "align": 4
+          },
+          {
+            "name": ".data",
+            "region": "RAM",
+            "align": 4
+          }
+        ]
+      }
+    },
+    {
+      "file_path": ".\\section\\multi_component\\component2\\bfx.yml",
+      "content": {
+        "name": "component2",
+        "section": [
+          {
+            "name": ".text",
+            "region": "FLASH",
+            "align": 4,
+            "size": 2048
+          },
+          {
+            "name": ".bss",
+            "region": "RAM",
+            "align": 8,
+            "size": 256
+          }
+        ]
+      }
+    },
+    {
+      "file_path": ".\\section\\multi_component\\driver\\bfx.yml",
+      "content": {
+        "name": "driver",
+        "section": [
+          {
+            "name": ".driver_code",
+            "region": "FLASH",
+            "align": 16,
+            "size": 4096
+          },
+          {
+            "name": ".driver_data",
+            "region": "RAM",
+            "align": 4,
+            "size": 1024
+          }
+        ]
+      }
+    }
+  ],
+  "sections": {
+    "component1": [
+      {
+        "source_file": ".\\section\\multi_component\\component1\\bfx.yml",
+        "component_name": "component1",
+        "section_name": ".text",
+        "region": "FLASH",
+        "load_region": "",
+        "align": 4,
+        "address": 0,
+        "size": 1024
+      },
+      {
+        "source_file": ".\\section\\multi_component\\component1\\bfx.yml",
+        "component_name": "component1",
+        "section_name": ".data",
+        "region": "RAM",
+        "load_region": "FLASH",
+        "align": 4,
+        "address": 0,
+        "size": 512
+      }
+    ],
+    "component1_sub": [
+      {
+        "source_file": ".\\section\\multi_component\\component1\\sub_comp\\bfx.yml",
+        "component_name": "component1_sub",
+        "section_name": ".text",
+        "region": "FLASH",
+        "load_region": "",
+        "align": 4,
+        "address": 0,
+        "size": 0
+      },
+      {
+        "source_file": ".\\section\\multi_component\\component1\\sub_comp\\bfx.yml",
+        "component_name": "component1_sub",
+        "section_name": ".data",
+        "region": "RAM",
+        "load_region": "",
+        "align": 4,
+        "address": 0,
+        "size": 0
+      }
+    ],
+    "component2": [
+      {
+        "source_file": ".\\section\\multi_component\\component2\\bfx.yml",
+        "component_name": "component2",
+        "section_name": ".text",
+        "region": "FLASH",
+        "load_region": "",
+        "align": 4,
+        "address": 0,
+        "size": 2048
+      },
+      {
+        "source_file": ".\\section\\multi_component\\component2\\bfx.yml",
+        "component_name": "component2",
+        "section_name": ".bss",
+        "region": "RAM",
+        "load_region": "",
+        "align": 8,
+        "address": 0,
+        "size": 256
+      }
+    ],
+    "driver": [
+      {
+        "source_file": ".\\section\\multi_component\\driver\\bfx.yml",
+        "component_name": "driver",
+        "section_name": ".driver_code",
+        "region": "FLASH",
+        "load_region": "",
+        "align": 16,
+        "address": 0,
+        "size": 4096
+      },
+      {
+        "source_file": ".\\section\\multi_component\\driver\\bfx.yml",
+        "component_name": "driver",
+        "section_name": ".driver_data",
+        "region": "RAM",
+        "load_region": "",
+        "align": 4,
+        "address": 0,
+        "size": 1024
+      }
+    ]
+  }
+}

@@ -5,6 +5,7 @@ import json
 import argparse
 import shutil
 import sys
+from log_utils import log_info, log_error, log_success, exit_with_error
 
 def remove_comments(content):
     """
@@ -49,14 +50,12 @@ def parse_memory_regions(content, input_file_path):
     memory_pattern = r'MEMORY\s*{([^}]*(?:}[^}])*)}'
     memory_match = re.search(memory_pattern, content, re.IGNORECASE | re.DOTALL)
     if not memory_match:
-        print(f"[BFX_SECTION_TOOL][ERROR] MEMORY region not found in {input_file_path}")
-        sys.exit(1)
+        exit_with_error(f"MEMORY region not found in {input_file_path}")
     memory_content = memory_match.group(1)
     region_pattern = r'(\w+)\s*\([^)]*\)\s*:\s*ORIGIN\s*=\s*([^,\s]+)\s*,\s*LENGTH\s*=\s*([^,\s]+)'
     regions = re.findall(region_pattern, memory_content, re.IGNORECASE)
     if not regions:
-        print(f"[BFX_SECTION_TOOL][ERROR] No memory regions found in {input_file_path}")
-        sys.exit(1)
+        exit_with_error(f"No memory regions found in {input_file_path}")
     result = {}
     for name, origin, length in regions:
         result[name.strip()] = {
@@ -66,17 +65,45 @@ def parse_memory_regions(content, input_file_path):
     return result
 
 def clean_output(temp_dir, output_file):
-    """
-    清除生成的结果
-    """
-    try:
-        if os.path.exists(temp_dir):
+    """Clean the output by removing the temporary directory, .ld.bfx files and output file."""
+    success = True
+    
+    # Remove .ld.bfx files in the temp directory
+    if os.path.exists(temp_dir):
+        for file_name in os.listdir(temp_dir):
+            if file_name.endswith('.ld.bfx'):
+                bfx_file_path = os.path.join(temp_dir, file_name)
+                try:
+                    os.remove(bfx_file_path)
+                    log_success(f"Removed .ld.bfx file: {bfx_file_path}")
+                except Exception as e:
+                    log_error(f"Failed to remove .ld.bfx file {bfx_file_path}: {str(e)}")
+                    success = False
+    
+    # Remove the entire temp directory
+    if os.path.exists(temp_dir):
+        try:
             shutil.rmtree(temp_dir)
-        if os.path.exists(output_file):
-            os.remove(output_file)    
-        print("[BFX_SECTION] [OK] cleanup completed")
-    except Exception as e:
-        print(f"[BFX_SECTION] [ERROR] cleanup error: {str(e)}")
+            log_success(f"Removed temporary directory: {temp_dir}")
+        except Exception as e:
+            log_error(f"Failed to remove temporary directory {temp_dir}: {str(e)}")
+            success = False
+    else:
+        # 临时目录不存在时，不报错
+        log_info(f"Temporary directory does not exist, skipping: {temp_dir}")
+    
+    if os.path.exists(output_file):
+        try:
+            os.remove(output_file)
+            log_success(f"Removed output file: {output_file}")
+        except Exception as e:
+            log_error(f"Failed to remove output file {output_file}: {str(e)}")
+            success = False
+    else:
+        # 输出文件不存在时，不报错
+        log_info(f"Output file does not exist, skipping: {output_file}")
+    
+    return success
 
 def main():
     parser = argparse.ArgumentParser(description='解析 LD 脚本中的 MEMORY 区域')
@@ -94,7 +121,7 @@ def main():
         parser.print_help()
         sys.exit(1)
     if not os.path.exists(args.file):
-        print(f"[BFX_SECTION] [ERROR] input file {args.file} does not exist")
+        exit_with_error(f"input file {args.file} does not exist")
         sys.exit(1)
     os.makedirs(args.temp, exist_ok=True)
     input_filename = os.path.basename(args.file)
@@ -110,7 +137,7 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
     with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(memory_regions, f, indent=2, ensure_ascii=False)
-    print(f"[BFX_SECTION] [OK] parsed {len(memory_regions)} regions from {args.file}")
+    log_success(f"parsed {len(memory_regions)} regions from {args.file}")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,0 @@
-name: invalid_component
-# Intentionally malformed YAML to test error handling
-section:
-  - name: .invalid_section
-    region: RAM
-    invalid_field: 4
-    another_invalid_field

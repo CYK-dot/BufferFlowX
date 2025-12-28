@@ -1,52 +1,59 @@
 # BufferFlowX
-A collection of commonly used MCU data structures, primarily focusing on queues.
-[中文文档](README_CN.md)</br>
-![codecov](https://codecov.io/gh/CYK-dot/BufferFlowX/branch/main/graph/badge.svg)
+[![codecov](https://codecov.io/gh/CYK-Dot/BufferFlowX/branch/main/graph/badge.svg)](https://codecov.io/gh/CYK-Dot/BufferFlowX)
 
-# DFIFO
-Double Buffer, also known as AB Buffer, eliminates mutual exclusion by alternating the use of two buffers, enabling simultaneous read and write operations.</br>
-For example, DFIFO can be used to drive a display, where the renderer writes data into one buffer while the driver reads from the other buffer and displays it on the screen, both operating concurrently.</br>
+Project is under development.......
+[中文文档](./README_CN.md) | [English Document](./README.md)
+## Introduction
 
-## How to use it?
-DFIFO is designed for asynchronous zero-copy operations. Both read and write operations always follow an Acquire-then-Complete pattern.</br>
-Asynchronous zero-copy was initially designed for DMA, allowing data acquisition before DMA starts and data submission in the DMA interrupt, avoiding secondary copying.</br>
-Of course, its usage is not limited to DMA; it applies to any scenario requiring asynchronous or zero-copy operations.</br>
-What if you don't need asynchronous or zero-copy? Simply wrap the functions so that Acquire and Complete are called within the same context.</br>
-```c
-/* Synchronous data transmission */
-void ExampleSyncSend(uint8_t *mem, BFX_DFIFO_CB *cb, uint8_t *dataToSend, uint16_t dataLen)
-{
-    if (dataLen > cb->sliceSize) {
-        return;
-    }
-    uint8_t *acquiredMem = BFX_DfifoSendAcquire(mem, cb);
-    if (acquiredMem == NULL) {
-        return;
-    }
-    memcpy(acquiredMem, dataToSend, dataLen);
-    BFX_DfifoSendComplete(cb);
-}
+BufferFlowX is a lightweight embedded system framework that provides a series of efficient C language components to solve common problems in embedded development.</br>
+The project includes multiple independently usable modules and a complete test project, which can evolve independently.
+
+## Core Functions and Application Scenarios
+
+BufferFlowX provides several core components, each targeting specific embedded development needs:
+
+1. **Double FIFO Component (double_fifo)** - Provides a double buffer mechanism for lock-free concurrent data transfer, suitable for scenarios that require decoupling between data production and consumption, such as DMA transmission, screen rendering, etc.
+
+2. **Single Input Single Output FIFO Component (siso_fifo)** - Implements a single producer single consumer ring buffer, supporting multiple transmission modes (split, no-split, vari), suitable for serial communication, data stream processing and other scenarios.
+
+3. **Multiple Input Multiple Output FIFO Component (mimo_fifo)** - Extends the traditional FIFO concept to support multiple producers and consumers operating simultaneously without locks.
+
+4. **State Machine Component (fsm)** - A toolchain based on PlantUML state diagrams to generate C code, supporting nested states and event handling, simplifying the implementation of complex state logic.
+
+5. **L2 Protocol Component (l2proto)** - Provides data frame framing and synchronization functions for serial communications such as SPI/UART, as well as error control mechanisms, suitable for applications requiring reliable serial communication.
+
+6. **Command Line Interface Component (cli)** - Provides command line parsing, command registration, parameter processing and other functions, supports wildcard matching and AT commands, making it easy to implement interactive command line interfaces in embedded systems.
+
+7. **Bootloader Component** - Provides image loading and management functions, supporting loading images from different media through dependency injection, suitable for systems requiring firmware updates and multi-image management.
+
+8. **Section Management Tool (section)** - An automated toolchain for managing memory sections in embedded projects, supporting automatic section allocation and memory area mapping, suitable for embedded projects requiring precise memory control.
+
+## Directory Navigation
+
+- [Double FIFO Component](./bfx/double_fifo/README_zhCN.md)
+- [Single Input Single Output FIFO Component](./bfx/siso_fifo/README_zhCN.md)
+- [Multiple Input Multiple Output FIFO Component](./bfx/mimo_fifo/README_zhCN.md)
+- [State Machine Component](./bfx/fsm/README_zhCN.md)
+- [L2 Protocol Component](./bfx/l2proto/README_zhCN.md)
+- [Command Line Interface Component](./bfx/cli/README_zhCN.md)
+- [Bootloader Component](./bfx/bootloader/README_zhCN.md)
+- [Section Management Tool](./bfx/section/README_zhCN.md)
+
+## Design Philosophy
+
+BufferFlowX is designed following these principles:
+
+- **Modularity**: Each component can be used independently, making it easy to integrate into existing projects
+- **Efficiency**: Focus on performance optimization, suitable for resource-constrained embedded environments
+- **Usability**: Provide simple API interfaces to reduce usage complexity
+- **Extensibility**: Designed with good extensibility, supporting feature customization
+
+## Installation and Usage
+
+BufferFlowX adopts a modular design, you can choose to use specific components as needed. Each component contains complete header files and implementation files, just add the relevant files to your project.
+
+For CMake projects, you can use the CMake utility files provided by BufferFlowX:
+
+```cmake
+include(${CMAKE_SOURCE_DIR}/bfx/bfx_cmake_util.cmake)
 ```
-
-## How it works?
-Each buffer has four states, always transitioning in the cycle: free → wr → ocp → rd → free.</br>
-The essence of the double buffer lies in the coordination between the two state machines. Part of its truth table is shown below.</br>
-| (A state, B state) | Call function | Result | Function return value | Explanation |
-| --- | --- | --- | --- | --- |
-| (free, free) | SendAcquire | (wr,free) | BufferA | When both are free, allocate memory, prioritizing A |
-| (wr, free) | SendComplete | (ocp,free) | None | Transmission complete, switch to ocp state |
-| (ocp, free) | SendAcquire | (ocp,wr) | BufferB | A has data, B is unoccupied, so write to B |
-| (ocp, free) | RecvAcquire | (rd,free) | BufferA | Only A has data, so return A to the user |
-| (free, ocp) | RecvAcquire | (free,rd) | BufferB | Only B has data, so return B to the user |
-| (wr, ocp) | RecvAcquire | (wr,rd) | BufferB | Producer occupies A, does not interfere with consumer reading from B |
-| (wr,free) | SendAcquire | (wr,free) | NULL | Producer cannot write to A while it is occupied |
-| (rd, ocp) | RecvAcquire | (rd, ocp) | NULL | Consumer cannot read from B while it is occupied |
-
-There is a special case: when the producer continuously writes data and the consumer never reads, both A and B end up in the ocp state.</br>
-To ensure the consumer always reads the oldest data, the double buffer additionally stores a variable called lastBuffer, indicating which buffer holds the newest data.</br>
-| lastBuffer | Call function | Function return value | Explanation |
-| --- | --- | --- | --- |
-| A | RecvAcquire | BufferB | A has the newest data, so B holds the oldest data |
-| B | RecvAcquire | BufferA | B has the newest data, so A holds the oldest data |
-| A | SendAcquire | BufferB | Request to write data, so it will overwrite the oldest data. After the function call, the state changes from (ocp,ocp) to (ocp,wr) |
-| B | SendAcquire | BufferA | State changes from (ocp,ocp) to (wr,ocp) |
