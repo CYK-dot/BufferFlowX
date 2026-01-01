@@ -1,0 +1,56 @@
+/* BUFFERFLOWX AUTO-GENERATED INCREMENTAL LINKER SCRIPT */
+/* Generated at: {{ timestamp }} */
+/* Template version: 1.0 */
+
+SECTIONS {
+{% for section in custom_sections %}
+    {{ section.name }} : {
+        {%- if section.start_address is defined %}
+        . = {{ section.start_address }};
+        {%- endif %}
+        .__{{ section.name|replace('.', '') }}__start__ = .;
+        {%- if section.load_region is defined %}
+        __{{ section.name|replace('.', '') }}_lma_start__ = LOADADDR({{ section.name }});
+        {%- endif %}
+        __{{ section.name|replace('.', '') }}_start__ = .;
+        KEEP(*({{ section.name }} {{ section.name }}.*))
+        {%- if section.fixed_size is defined %}
+        {%- if section.alignment is defined %}
+        . = ALIGN({{ section.alignment }});
+        {%- else %}
+        . = ALIGN(4);
+        {%- endif %}
+        FILL(0x00)
+        . = __{{ section.name|replace('.', '') }}_start__ + {{ section.fixed_size }};
+        {%- elif section.max_size is defined %}
+        {%- if section.alignment is defined %}
+        . = ALIGN({{ section.alignment }});
+        {%- else %}
+        . = ALIGN(4);
+        {%- endif %}
+        __{{ section.name|replace('.', '') }}_remaining__ = {{ section.max_size }} - ( . - __{{ section.name|replace('.', '') }}_start__ );
+        {%- else %}
+        {%- if section.alignment is defined %}
+        . = ALIGN({{ section.alignment }});
+        {%- else %}
+        . = ALIGN(4);
+        {%- endif %}
+        {%- endif %}
+        __{{ section.name|replace('.', '') }}_end__ = .;
+        {%- if section.load_region is defined %}
+        __{{ section.name|replace('.', '') }}_lma_end__ = LOADADDR({{ section.name }}) + SIZEOF({{ section.name }});
+        {%- endif %}
+        {%- if section.fixed_size is defined %}
+        ASSERT((__{{ section.name|replace('.', '') }}_end__ - __{{ section.name|replace('.', '') }}_start__) <= {{ section.fixed_size }},
+               "Section {{ section.name }} exceeds fixed size of {{ section.fixed_size }} bytes!");
+        {%- elif section.max_size is defined %}
+        ASSERT((__{{ section.name|replace('.', '') }}_end__ - __{{ section.name|replace('.', '') }}_start__) <= {{ section.max_size }},
+               "Section {{ section.name }} exceeds maximum size of {{ section.max_size }} bytes!");
+        {%- endif %}
+        .__{{ section.name|replace('.', '') }}__end__ = .;
+        {%- if section.alignment is defined %}
+        . = ALIGN({{ section.alignment }});
+        {%- endif %}
+    } > {{ section.memory_region }} {% if section.load_region is defined %} AT> {{ section.load_region }}{% endif %}
+{% endfor %}
+}

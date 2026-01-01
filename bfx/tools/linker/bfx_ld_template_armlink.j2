@@ -1,0 +1,48 @@
+; BUFFERFLOWX AUTO-GENERATED SCATTER LOADING FILE
+; Generated at: {{ timestamp }}
+; Template version: 1.0
+
+; Custom sections generated from JSON configuration
+{% if custom_sections %}
+{% for section in custom_sections %}
+; Section: {{ section.name }}
+{% if section.start_address is defined -%}
+{{ section.name }} {{ section.start_address }} 
+{% else -%}
+{{ section.name }} +0
+{% endif -%}
+{
+    * ({{ section.name }})
+    {% if section.fixed_size is defined -%}
+    ; Fixed size: {{ section.fixed_size }} bytes
+    {% elif section.max_size is defined -%}
+    ; Maximum size: {{ section.max_size }} bytes
+    {% endif -%}
+    {% if section.alignment is defined -%}
+    ALIGN {{ section.alignment }}
+    {% endif -%}
+}
+{% if section.load_region is defined and section.load_region != section.memory_region %}
+  LOAD {{ section.load_region }}
+{% else %}
+  LOAD {{ section.memory_region }}
+{% endif %}
+{% if section.max_size is defined %}
+  MAX_SIZE {{ section.max_size }}
+{% elif section.fixed_size is defined %}
+  SIZE {{ section.fixed_size }}
+{% endif %}
+
+{% endfor %}
+{% else %}
+; No custom sections defined
+{% endif %}
+
+; Memory regions (example - adjust according to your actual memory layout)
+;  FLASH 0x00000000 0x00100000
+;  RAM   0x20000000 0x00040000
+
+; Notes:
+; 1. You may need to adjust the addresses and sizes according to your actual memory layout
+; 2. For Keil MDK, ensure the scatter file is specified in the linker options
+; 3. Complex memory layouts may require manual adjustments to this file

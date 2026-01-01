@@ -1,5 +1,0 @@
-name: driver
-section:
-  - name: .uart_driver
-    region: FLASH
-    align: 16

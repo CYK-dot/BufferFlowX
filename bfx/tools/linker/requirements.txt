@@ -1,0 +1,9 @@
+# BufferFlowX Linker Script Generator GUI - Dependencies
+# This file lists the required Python packages for running the GUI application
+
+# Template engine for generating linker scripts
+jinja2>=3.0.0
+pyinstaller>=5.0.0
+
+# Note: tkinter, json, re, datetime, and os are part of Python's standard library
+# and do not need to be installed separately.

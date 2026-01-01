@@ -1,8 +1,0 @@
-name: component1_sub
-section:
-  - name: .text
-    region: FLASH
-    align: 4
-  - name: .data
-    region: RAM
-    align: 4

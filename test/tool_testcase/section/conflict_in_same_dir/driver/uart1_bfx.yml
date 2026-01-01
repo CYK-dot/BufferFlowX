@@ -1,8 +1,0 @@
-name: driver
-section:
-  - name: .uart_driver
-    region: FLASH
-    align: 16
-  - name: .uart_driver_data
-    region: RAM
-    align: 4
