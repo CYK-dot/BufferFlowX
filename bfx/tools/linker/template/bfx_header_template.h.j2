@@ -1,0 +1,39 @@
+/* BUFFERFLOWX AUTO-GENERATED HEADER FILE */
+/* Generated at: {{ timestamp }} */
+/* Template version: 1.0 */
+
+#ifndef BFX_AUTOGEN_SECTIONS_{{ component_name|upper|replace('.', '_')|replace('-', '_') }}_H
+#define BFX_AUTOGEN_SECTIONS_{{ component_name|upper|replace('.', '_')|replace('-', '_') }}_H
+
+/* Include standard types for pointer casting */
+#include <stdint.h>
+#include <string.h>
+
+{% for section in custom_sections %}
+    /* Section: {{ section.name }} - Extern declarations */
+    extern uint8_t __{{ section.name|replace('.', '') }}__start__[];
+    extern uint8_t __{{ section.name|replace('.', '') }}__end__[];
+    
+    {% if section.load_region is defined %}
+    /* Load Memory Address (LMA) symbols for sections with load_region */
+    extern uint8_t __{{ section.name|replace('.', '') }}_lma_start__[];
+    extern uint8_t __{{ section.name|replace('.', '') }}_lma_end__[];
+    {% endif %}
+    
+    /* Macro to place variable/function in this section */
+    #define BFX_{{ component_name|upper }}_{{ section.name|replace('.', '_')|upper }} __attribute__((section("{{ section.name }}"))) __attribute__((used))
+    
+    {% if section.load_region is defined %}
+    /* Static inline function for copying data from LMA (load region) to runtime section */
+    static inline void BFX_{{ component_name|upper }}_{{ section.name|replace('.', '_')|upper }}_COPY(void) {
+        size_t size = __{{ section.name|replace('.', '') }}__end__ - __{{ section.name|replace('.', '') }}__start__;
+        if (size > 0) {
+            memcpy(__{{ section.name|replace('.', '') }}__start__, 
+                   __{{ section.name|replace('.', '') }}_lma_start__, 
+                   size);
+        }
+    }
+    {% endif %}
+{% endfor %}
+
+#endif /* BFX_AUTOGEN_SECTIONS_{{ component_name|upper|replace('.', '_')|replace('-', '_') }}_H */
